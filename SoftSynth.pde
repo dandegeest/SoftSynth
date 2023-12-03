@@ -15,8 +15,9 @@ ArrayList<ChannelInfo> channelInfo = new ArrayList<ChannelInfo>();
 //Sequencer
 final int NUM_TRACKS = 4;
 final int NUM_STEPS = 32;
-final int NOTE_VELOCITY = 100;
-final long MS_PER_TICK = 3875000 / NUM_STEPS / 1000;
+int bpm = 120;
+int bpmDisplay = 0;
+
 Sequence sequence;
 Sequencer sequencer;
 int currentTrack = 0;
@@ -76,7 +77,7 @@ void setup() {
   background(bgColor);
   initMidi();
   initSerial();
-  setBPM(120);
+  setBPM(bpm);
   createMidiSequence();
 
   dash = new DashedLines(this);
@@ -95,11 +96,24 @@ void setup() {
 void draw() {
   background(bgColor);
   //drawPalette();
+  drawBpm();
   drawPad();
 }
 
 boolean padVisible() {
-  return recording || mousePressed || keyPressed;
+  return true;//recording || mousePressed || keyPressed;
+}
+
+void drawBpm() {
+  if (bpmDisplay > 0) {
+    pushStyle();
+    fill(txtColor);
+    textAlign(CENTER);
+    textSize(200);
+    text(""+bpm, 0, 0, width, padHeight);
+    popStyle();
+    bpmDisplay--;
+  }
 }
 
 void drawPalette() {
@@ -310,7 +324,8 @@ long getCurrentDuration() {
     }
   else {
     int tm = millis() - lastPress;
-    duration = constrain(floor(tm/MS_PER_TICK), 0, NUM_STEPS);
+    duration = tm/(long)calculateMillisecondsPerTick();
+    println("DDD", tm, calculateMillisecondsPerTick(), duration);
   }
 
   return duration;
@@ -343,6 +358,17 @@ void mouseReleased() {
   }
   
   mousePressX = -1;
+}
+
+void mouseWheel(MouseEvent event) {
+  // Adjust the scale factor based on the mouse wheel movement
+  float delta = event.getCount();
+  bpm += delta;
+  println("BPM", bpm, calculateMillisecondsPerTick());
+  
+  setBPM(bpm);
+  
+  bpmDisplay = 30;
 }
 
 void recordNote(Note note, long noteDuration) {
@@ -502,6 +528,7 @@ void createMidiSequence() {
       sequence.createTrack();   
       finalizeSequence(sequence, t);
     }
+    sequencer.setSequence(sequence);
   } catch (InvalidMidiDataException e) {
     e.printStackTrace();
   }
@@ -510,10 +537,9 @@ void createMidiSequence() {
 void playMidiSequence() {
   if (sequencer != null && sequence != null) {
     try {
-      sequencer.setSequence(sequence);
       sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY); // Loop the sequence continuously
       sequencer.start();
-    } catch (InvalidMidiDataException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }

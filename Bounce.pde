@@ -2,7 +2,7 @@ PVector GRAVITY = new PVector(0, 0.2);
 
 class Bounce extends Note {
   int groundCnt = 0;
-  int volDecay;
+  float volDecay;
   
   Bounce(Synthesizer s, float x, float y, int c, int n, int v, int d) {
     super(s, x, y, c, n, v, d);
@@ -11,7 +11,7 @@ class Bounce extends Note {
     else
       velocity = new PVector(max(5, random(15)), 0);
       
-    volDecay = v/max(1, d);
+    volDecay = 2.5;
   }
   
   boolean doneBouncing() { return groundCnt > 5; }
@@ -31,18 +31,19 @@ class Bounce extends Note {
     if (position.x > width - delay / 2 || position.x < delay / 2) {
       velocity.x *= -1;
       volume -= volDecay;
-      play();
+      //play();
     }
     if (position.y + delay / 2 > height) {
       position.y = height - delay;
       velocity.y *= -0.8;
       volume -= volDecay;
-      play();
+      //play();
     }
     
     if (onGround()) { 
+      stop();
       volume -= volDecay;
-      //stop();
+      play();
       //note = (int)map(position.x, 0, width, 24, 95);
       //play();
       delay--;

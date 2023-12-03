@@ -117,6 +117,19 @@ public void finalizeSequence(Sequence seq, int trackNumber) {
   }
 }
 
+public double calculateMillisecondsPerTick() {
+  if (sequencer != null) {
+    long microseconds = sequencer.getMicrosecondLength();
+    long ticks = sequencer.getTickLength();
+  
+    if (ticks != 0) {
+        return (microseconds / 1000.0) / ticks; // Calculate milliseconds per tick
+    }
+  }
+  
+  return -1; // Return -1 if the sequencer or tick length is not available
+}
+
 public boolean isNaturalNote(int midiNoteNumber) {
     int note = midiNoteNumber % 12; // Get the note number within an octave
 
