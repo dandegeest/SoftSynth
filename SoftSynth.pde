@@ -324,8 +324,7 @@ long getCurrentDuration() {
     }
   else {
     int tm = millis() - lastPress;
-    duration = tm/(long)calculateMillisecondsPerTick();
-    println("DDD", tm, calculateMillisecondsPerTick(), duration);
+    duration = (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep);
   }
 
   return duration;
@@ -502,7 +501,7 @@ void setProgram(int channel, int programNumber) {
       ChannelInfo ci = channelInfo.get(channel);
       ci.instrumentIndex = programNumber;
       ci.instrumentName = synth.getLoadedInstruments()[programNumber].getName();
-      println("SetProgram:", channel, programNumber);
+      //println("SetProgram:", channel, programNumber);
     }
     catch (Exception e) {
       println("EEEEEK", e);
