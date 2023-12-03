@@ -46,14 +46,13 @@ color[] synthwavePalette = {
   #FF4343, #FF9143, #FFD143, #67FF43
 };
 
-int seqColor = synthwavePalette[1];
-int seqHColor = synthwavePalette[12];
+int seqColor = synthwavePalette[9];
+int seqHColor = synthwavePalette[11];
 int seqCColor = synthwavePalette[6];
 
 int bgColor = synthwavePalette[14];
 int txtColor = synthwavePalette[11];
-int chColor = synthwavePalette[12];
-int chHColor = synthwavePalette[2];
+int chColor = synthwavePalette[9];
 int nnColor = synthwavePalette[5];
 int nn1Color = synthwavePalette[8];
 int whiteKey = synthwavePalette[10];
@@ -90,7 +89,7 @@ void setup() {
     channelInfo.add(ci);
   }
   
-  //fullScreen();
+  fullScreen();
 }
 
 void draw() {
@@ -135,7 +134,6 @@ void drawPad() {
     pushStyle();
     strokeWeight(1);
     stroke(chColor);
-    fill(chHColor);
     activeChannel = mouseY >= y && mouseY <= y + padHeight/NUM_CHANNELS;
     if (!padVisible() && activeChannel)
       activeChannelY = y;
@@ -152,16 +150,18 @@ void drawPad() {
           rect(x, y, width/NUM_NOTES, padHeight/NUM_CHANNELS);
         }
       popStyle();    
-      //rect(0, y, width, padHeight/NUM_CHANNELS);
     }
     
     if (padVisible() || activeChannel) {
       line(0, y, width, y);
+      noStroke();
+      fill(synthwavePalette[2]);
+      rect(2, y + 2, 150, 20, 6);
       //Instrument Name
       fill(txtColor);
       textAlign(LEFT);
       textSize(20);
-      text(channelInfo.get(channel).instrumentName, 5, y + 5, width-5, padHeight/NUM_CHANNELS);
+      text(channelInfo.get(channel).instrumentName, 5, y + 5, 150, 20);
     }
     channel++;
     popStyle();
@@ -176,7 +176,7 @@ void drawPad() {
     stroke(chColor);
     for (int x = 0; x < width; x += width/division) {
       dash.line(x, activeChannelY, x, padVisible() ? padHeight : activeChannelY + padHeight/NUM_CHANNELS);
-      dash.offset(dashDist);
+      //dash.offset(dashDist);
       dashDist += 1;
     }
     popStyle();
@@ -204,7 +204,7 @@ void drawPad() {
   pushStyle();
   int trackHeight = (height - (padHeight + 5)) / NUM_TRACKS;
   noStroke();
-  fill(chHColor);
+  fill(synthwavePalette[2]);
   rect(0, padHeight + currentTrack * trackHeight, width, trackHeight);
   strokeWeight(1);
   for (int s = 0; s < 32; s++) {
@@ -243,9 +243,9 @@ void drawPad() {
       stroke(currentStep == s ? seqHColor : seqColor);
       
     noFill();
-    rect(s * width/32, padHeight, width/32-2, height - padHeight - 10, 2);
+    rect(s * width/32, padHeight, width/32-2, trackHeight * NUM_TRACKS, 2);
     fill(txtColor);
-    text(""+s, s * width/32, padHeight, width/32-2, height - padHeight - 10);
+    text(""+s, s * width/32, padHeight, width/32-2, trackHeight * NUM_TRACKS);
   }
   popStyle();
   
@@ -352,7 +352,7 @@ void mouseReleased() {
     int v = 90;
     Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
     setProgram(ch, program);
-    note.setMessage(synth.getLoadedInstruments()[program].getName());
+    //note.setMessage(synth.getLoadedInstruments()[program].getName());
     addNote(note);
   }
   
@@ -406,19 +406,19 @@ void keyPressed() {
     if (i < 0) i = 127;
     setProgram(ch, i);
     Note note = new Note(synth, width/2, ch * padHeight/NUM_CHANNELS + padHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
-    note.setMessage(ci.instrumentName);  
+    //note.setMessage(ci.instrumentName);  
     addNote(note);
   }
   
   if (keyCode == UP) {
     currentTrack--;
     if (currentTrack < 0)
-      currentTrack = NUM_TRACKS;
+      currentTrack = NUM_TRACKS - 1;
   }
   
   if (keyCode == DOWN) {
     currentTrack++;
-    if (currentTrack > NUM_TRACKS)
+    if (currentTrack == NUM_TRACKS)
       currentTrack = 0;
   }
   
@@ -434,16 +434,18 @@ void keyPressed() {
     if (i > 127) i = 0;
     setProgram(ch, i);
     Note note = new Note(synth, width/2, ch * padHeight/NUM_CHANNELS + padHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
-    note.setMessage(ci.instrumentName);  
+    //note.setMessage(ci.instrumentName);  
     addNote(note);
   }
   
   if (key == 'b') {
+    lastPressTick = sequencer.getTickPosition();
     int nn = getNote(mouseX);
     int nd = (int)random(30, 150);
     int v = 100;
     Note note = new Bounce(synth, mouseX, mouseY, ch, nn, v, nd);
     addNote(note);
+    recordNote(note, 1);
   }
   
   if (key == 'r') {
