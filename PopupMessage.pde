@@ -6,7 +6,7 @@ class PopupMessage extends Sprite {
 
   
   PopupMessage(float x, float y, String m, int d) {
-    super(x, y);
+    super(x, y, 0, 0);
     message = m;
     duration = d;
   }

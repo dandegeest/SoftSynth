@@ -4,7 +4,6 @@ import garciadelcastillo.dashedlines.*;
 
 // MIDI variables
 MidiDevice midiDevice;
-Note currentNote;
 
 //Synthesizer
 Synthesizer synth;
@@ -20,23 +19,19 @@ int bpmDisplay = 0;
 
 Sequence sequence;
 Sequencer sequencer;
+float ticksPerStep = 0;
 int currentTrack = 0;
 int currentStep = 0;
 boolean recording = false;
 
 // MIDI variables
-final int START_NOTE = 36;//24;
-final int END_NOTE = 84;//94
+final int START_NOTE = 36;
+final int END_NOTE = 84;
 final int NUM_NOTES = END_NOTE - START_NOTE;
 
-//Pad
+//Utils
 DashedLines dash;
 float dashDist = 0;
-int padHeight = height - 100;
-int currS = 0;
-int currY = 0;
-int gridX = 0;
-int gridY = 0;
 
 //Palette
 color[] synthwavePalette = {
@@ -59,25 +54,41 @@ int whiteKey = synthwavePalette[10];
 int blackKey = synthwavePalette[11];
 
 //Interaction
-int lastPress;
-long lastPressTick;
+int mousePressMillis;
+long mousePressSeqTick;
 int mousePressX;
+int mousePressY;
 
 //Serial COM
 Serial sPort;
 float knock = 0;
 String message;
 
+// Active notes
 ArrayList<Note> notes = new ArrayList<Note>();
+
+//Synestruments
+int synestrumentHeight = height - 100;
+Keyano keyano;
+Beztar beztar;
+
+Synestrument synestrument;
 
 void setup() {
   size(128 * 10, 50 * 16 + 110); // (END_NOTE - START_NOTE) * 15, 50 * NUM_CHANNELS
-  padHeight = 50 * 16;  
+  synestrumentHeight = 50 * 16;  
   background(bgColor);
   initMidi();
   initSerial();
   setBPM(bpm);
   createMidiSequence();
+  
+  //Create the synestruments
+  beztar = new Beztar(0, 0, width, 50 * NUM_CHANNELS);
+  keyano = new Keyano(0, 0, width, 50 * NUM_CHANNELS);
+  
+  //Set current synestrument
+  synestrument = beztar;
 
   dash = new DashedLines(this);
   
@@ -89,18 +100,18 @@ void setup() {
     channelInfo.add(ci);
   }
   
-  fullScreen();
+  //fullScreen();
 }
 
 void draw() {
   background(bgColor);
-  //drawPalette();
+  if (key == 'd')
+    drawPalette();
   drawBpm();
-  drawPad();
-}
-
-boolean padVisible() {
-  return true;//recording || mousePressed || keyPressed;
+  if (synestrument != null)
+    synestrument.display();
+  drawSequencer();
+  drawNotes();
 }
 
 void drawBpm() {
@@ -109,146 +120,27 @@ void drawBpm() {
     fill(txtColor);
     textAlign(CENTER);
     textSize(200);
-    text(""+bpm, 0, 0, width, padHeight);
+    text(""+bpm, 0, 0, width, synestrumentHeight);
     popStyle();
     bpmDisplay--;
   }
 }
 
 void drawPalette() {
-  
+  int w = width/synthwavePalette.length;
   for (int i = 0; i < synthwavePalette.length; i++) {
     noStroke();
     fill(synthwavePalette[i]);
-    rect(i * 50, 10, 50, 50);
-  }
-}
-
-void drawPad() {
-  int channel = 0;
-  boolean activeChannel = false;
-  int activeChannelY = 0;    
-  for (int y = 0; y < padHeight; y += padHeight/NUM_CHANNELS) { //<>//
-    if (channel == NUM_CHANNELS)
-      break;
-    pushStyle();
-    strokeWeight(1);
-    stroke(chColor);
-    activeChannel = mouseY >= y && mouseY <= y + padHeight/NUM_CHANNELS;
-    if (!padVisible() && activeChannel)
-      activeChannelY = y;
-      if (activeChannel && mouseButton != RIGHT) {
-        //Fill in the active channel
-        pushStyle();
-        for (int x = 0; x < width; x += width/NUM_NOTES) {
-          noStroke();
-          int n = getNote(x);
-          if (isNaturalNote(n))
-            fill(whiteKey, 200);
-          else
-            fill(blackKey,200);
-          rect(x, y, width/NUM_NOTES, padHeight/NUM_CHANNELS);
-        }
-      popStyle();    
-    }
-    
-    if (padVisible() || activeChannel) {
-      line(0, y, width, y);
-      noStroke();
-      fill(synthwavePalette[2]);
-      rect(2, y + 2, 150, 20, 6);
-      //Instrument Name
-      fill(txtColor);
-      textAlign(LEFT);
-      textSize(20);
-      text(channelInfo.get(channel).instrumentName, 5, y + 5, 150, 20);
-    }
-    channel++;
-    popStyle();
-  }
-  
-  int division = mouseButton == RIGHT ? NUM_INSTRUMENTS : NUM_NOTES;
-  
-  if (padVisible() || activeChannelY > 0) {
-    pushStyle();
-    dash.pattern(1, 5);
-    strokeWeight(1);
-    stroke(chColor);
-    for (int x = 0; x < width; x += width/division) {
-      dash.line(x, activeChannelY, x, padVisible() ? padHeight : activeChannelY + padHeight/NUM_CHANNELS);
-      //dash.offset(dashDist);
-      dashDist += 1;
-    }
-    popStyle();
-  }
-
-  //Current Cell
-  if (mouseY < padHeight) {
-    pushStyle();
-    noStroke();
-    fill(lerpColor(nn1Color, nnColor, map(mouseX, 0, width, 0, 1)));
-    rect(mouseX - (mouseX % (width/division)), mouseY - (mouseY % (padHeight/NUM_CHANNELS)), width/division, padHeight/NUM_CHANNELS);
-    fill(txtColor);
-    int nn;
-    if (mouseButton == RIGHT) {
-      textSize(14);
-      nn = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
-    }
+    rect(i * w, 10, w, 50);
+    if (synthwavePalette[i] == color(0))
+      fill(255);
     else
-      nn = getNote(mouseX);
-    text(""+nn, mouseX - (mouseX % (width/division)), mouseY - (mouseY % (padHeight/NUM_CHANNELS)), width/division, padHeight/NUM_CHANNELS);
-    popStyle();
+      fill(0);
+    text(hex(synthwavePalette[i]).substring(2), i * w, 10, w, 50);
   }
+} //<>//
 
-  //Sequencer
-  pushStyle();
-  int trackHeight = (height - (padHeight + 5)) / NUM_TRACKS;
-  noStroke();
-  fill(synthwavePalette[2]);
-  rect(0, padHeight + currentTrack * trackHeight, width, trackHeight);
-  strokeWeight(1);
-  for (int s = 0; s < 32; s++) {
-    for (int t = 0; t < NUM_TRACKS; t++) {
-      int n = getNoteAtStep(sequence, t, s);
-      if (n > 0) {
-        noStroke();
-        fill(lerpColor(nn1Color, nnColor, map((n - START_NOTE) * width/NUM_NOTES, 0, width/NUM_NOTES * NUM_NOTES, 0, 1)));
-        rect(s * width/32, padHeight + t  * trackHeight, width/32-2, trackHeight, 2);
-      }
-    }
-    
-    if (recording) {
-      pushStyle();
-      ellipseMode(CENTER);
-      fill(255, 0 , 0);
-      ellipse(5, padHeight + (currentTrack * trackHeight) + trackHeight/2, 12, 12);
-      popStyle();
-    }
-    
-    pushStyle();
-    dash.pattern(1, 5);
-    strokeWeight(1);
-    stroke(chColor);
-    dash.line(0, padHeight + currentTrack * trackHeight, width, padHeight + currentTrack * trackHeight);
-    dash.line(0, padHeight + (currentTrack + 1) * trackHeight, width, padHeight + (currentTrack + 1) * trackHeight);
-    popStyle();  
-
-    if (sequencer.isRunning()) {
-      if (sequencer.getTickPosition() == s)
-        stroke(seqHColor);
-      else
-        stroke(seqColor);
-    }
-    else
-      stroke(currentStep == s ? seqHColor : seqColor);
-      
-    noFill();
-    rect(s * width/32, padHeight, width/32-2, trackHeight * NUM_TRACKS, 2);
-    fill(txtColor);
-    text(""+s, s * width/32, padHeight, width/32-2, trackHeight * NUM_TRACKS);
-  }
-  popStyle();
-  
+void drawNotes() {
   ArrayList<Note> notesDone = new ArrayList<Note>();
   for (int i = 0; i < notes.size(); i++) {
     Note note = notes.get(i);
@@ -263,123 +155,132 @@ void drawPad() {
   notes.removeAll(notesDone);
 }
 
-int getNote(int xPos) {
-  int note = (int)map(xPos, 0, width/NUM_NOTES * NUM_NOTES, START_NOTE, END_NOTE);
-  return note;
+void drawSequencer() {
+  //Sequencer
+  pushStyle();
+  int trackHeight = (height - (synestrumentHeight + 5)) / NUM_TRACKS;
+  noStroke();
+  fill(synthwavePalette[2]);
+  rect(0, synestrumentHeight + currentTrack * trackHeight, width, trackHeight);
+  strokeWeight(1);
+  for (int s = 0; s < 32; s++) {
+    for (int t = 0; t < NUM_TRACKS; t++) {
+      int n = getNoteAtStep(sequence, t, s);
+      if (n > 0) {
+        noStroke();
+        fill(lerpColor(nn1Color, nnColor, map((n - START_NOTE) * width/NUM_NOTES, 0, width/NUM_NOTES * NUM_NOTES, 0, 1)));
+        rect(s * width/32, synestrumentHeight + t  * trackHeight, width/32-2, trackHeight, 2);
+      }
+    }
+    
+    if (recording) {
+      pushStyle();
+      ellipseMode(CENTER);
+      fill(255, 0 , 0);
+      ellipse(5, synestrumentHeight + (currentTrack * trackHeight) + trackHeight/2, 12, 12);
+      popStyle();
+    }
+    
+    pushStyle();
+    dash.pattern(1, 5);
+    strokeWeight(1);
+    stroke(chColor);
+    dash.line(0, synestrumentHeight + currentTrack * trackHeight, width, synestrumentHeight + currentTrack * trackHeight);
+    dash.line(0, synestrumentHeight + (currentTrack + 1) * trackHeight, width, synestrumentHeight + (currentTrack + 1) * trackHeight);
+    popStyle();  
+
+    if (sequencer.isRunning()) {
+      if (sequencer.getTickPosition() == s)
+        stroke(seqHColor);
+      else
+        stroke(seqColor);
+    }
+    else
+      stroke(currentStep == s ? seqHColor : seqColor);
+      
+    noFill();
+    rect(s * width/32, synestrumentHeight, width/32-2, trackHeight * NUM_TRACKS, 2);
+    fill(txtColor);
+    text(""+s, s * width/32, synestrumentHeight, width/32-2, trackHeight * NUM_TRACKS);
+  }
+  popStyle();
 }
 
 void mouseDragged() {
-  if (mouseY < padHeight) {
-    //if (currentNote != null) {
-    //  int pitchBendValue = floor(map(mouseX, mousePressX, width, 0, 16383 ));
-    //  ShortMessage pitchBendMessage = new ShortMessage();
-    //  int channel = currentNote.channel;
-    //  synth.getChannels()[channel].setPitchBend((int)map(mouseX, mousePressX, width, 8192, 16383));
-    //  try {
-    //    println(pitchBendValue & 0x7F, (pitchBendValue >> 7) & 0x7F);
-    //    pitchBendMessage.setMessage(ShortMessage.PITCH_BEND, channel, pitchBendValue & 0x7F, (pitchBendValue >> 7) & 0x7F);
-    //    MidiEvent pitchBendEvent = new MidiEvent(pitchBendMessage, getCurrentDuration());
-    //    sequence.getTracks()[currentTrack].add(pitchBendEvent);
-    //   }
-    //     catch (InvalidMidiDataException e) {
-    //     e.printStackTrace();
-    //   }    
-    //   return;
-    //}
-    
+  if (mouseY < synestrumentHeight) {    
     if (mouseButton == LEFT) {
-      int ch = constrain((int)map(mouseY, 0, padHeight, 0, NUM_CHANNELS), 0, 15);  
-      int nn = getNote(mouseX);
-      int v = constrain(abs(mouseX - pmouseX) * 2, 50, 127);
-      Note note = new Note(synth, mouseX, mouseY, ch, nn, v, abs(mouseX - pmouseX) * 2);
-      addNote(note);
+      if (synestrument != null)
+        synestrument.onLeftMouseDragged();
     }
   }
 }
 
 void mousePressed() {
   mousePressX = mouseX;
-  if (mouseButton == LEFT && mouseY < padHeight) {
-    lastPress = millis();
-    lastPressTick = sequencer.getTickPosition();
-    
-    //Select Note
-    int ch = constrain((int)map(mouseY, 0, padHeight, 0, NUM_CHANNELS), 0, 15);
-    int nn = getNote(mouseX);
-    int nd = 100;
-    int v = 100;
-    currentNote = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
-    addNote(currentNote);
+  mousePressY = mouseY;
+  mousePressMillis = millis();
+  mousePressSeqTick = sequencer.getTickPosition();
+  
+  if (mouseY < synestrumentHeight && synestrument != null) {
+    if (mouseButton == LEFT) {
+      synestrument.onLeftMousePressed();
+    }
+    if (mouseButton == RIGHT) {
+      synestrument.onRightMousePressed();
+    }
   }
+}
+
+void mouseReleased() {
+  if (mouseButton == LEFT) {
+    if (mousePressY > synestrumentHeight && mousePressY < height &&
+        mouseY > synestrumentHeight && mouseY < height ) {
+      //Select Sequencer Step
+      currentStep = mouseX / (width/32);
+    }
+    else if (synestrument != null)
+      synestrument.onLeftMouseReleased();
+  }
+
+  if (mouseButton == RIGHT) {
+    if (synestrument != null)
+      synestrument.onRightMouseReleased();
+  }
+  
+  mousePressX = -1;
+  mousePressY = -1;
+}
+
+void mouseWheel(MouseEvent event) {
+  float delta = event.getCount();
+  bpm += delta;
+  setBPM(bpm); 
+  bpmDisplay = 30;
 }
 
 long getCurrentDuration() {
   long duration = 0;
   if (sequencer.isRunning()) {
     long r = sequencer.getTickPosition();
-    if (r < lastPressTick)
-      duration = NUM_STEPS - lastPressTick + r;
+    if (r < mousePressSeqTick)
+      duration = NUM_STEPS - mousePressSeqTick + r;
     else
-      duration = sequencer.getTickPosition() - lastPressTick;
+      duration = sequencer.getTickPosition() - mousePressSeqTick;
     }
   else {
-    int tm = millis() - lastPress;
+    int tm = millis() - mousePressMillis;
     duration = (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep);
   }
 
   return duration;
 }
 
-void mouseReleased() {
-  if (mouseButton == LEFT) {
-    if (currentNote != null) {
-      currentNote.stop();
-      //synth.getChannels()[currentNote.channel].setPitchBend(8191);
-      recordNote(currentNote, getCurrentDuration());
-    }
-    
-    if (mouseY > padHeight && mouseY < height) {
-      //Select Seq Step
-      currentStep = mouseX / (width/32);
-    }
-  }
-
-  if (mouseButton == RIGHT) {
-    int program = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
-    int ch = constrain((int)map(mouseY, 0, padHeight, 0, NUM_CHANNELS), 0, 15);
-    int nn = 60;
-    int nd = 15;
-    int v = 90;
-    Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
-    setProgram(ch, program);
-    //note.setMessage(synth.getLoadedInstruments()[program].getName());
-    addNote(note);
-  }
-  
-  mousePressX = -1;
-}
-
-void mouseWheel(MouseEvent event) {
-  // Adjust the scale factor based on the mouse wheel movement
-  float delta = event.getCount();
-  bpm += delta;
-  println("BPM", bpm, calculateMillisecondsPerTick());
-  
-  setBPM(bpm);
-  
-  bpmDisplay = 30;
-}
-
 void recordNote(Note note, long noteDuration) {
   if (recording) {
     //println("PRESS", noteDuration);
-    float ticksPerQuarterNote = sequence.getResolution(); // Get ticks per quarter note
-    //float divisionType = sequence.getDivisionType();
-    int stepsPerQuarterNote = 4; // For example, if your sequence is divided into 4 steps per quarter note
-    float ticksPerStep = ticksPerQuarterNote / stepsPerQuarterNote; 
     long tick = (long)(currentStep * ticksPerStep);
     if (sequencer.isRunning())
-      tick = lastPressTick;
+      tick = mousePressSeqTick;
     //println("Record:",  tick, note.note, note.channel);
     ChannelInfo ci = channelInfo.get(note.channel);
     sequence.getTracks()[currentTrack].add(createProgramChangeEvent(note.channel, ci.instrumentIndex, tick));
@@ -392,7 +293,21 @@ void recordNote(Note note, long noteDuration) {
 }
 
 void keyPressed() {
-  int ch = constrain((int)map(mouseY, 0, padHeight, 0, NUM_CHANNELS), 0, 15);
+  println("KEY", key);
+
+  if (key == 'k') {
+    synestrument = keyano;
+  }
+  
+  if (key == 'b') {
+    synestrument = beztar;
+  }
+
+  int ch = 0;
+  if (synestrument != null) {
+    ch = synestrument.getChannel();
+  }
+    
   ChannelInfo ci = channelInfo.get(ch);
   if (keyCode == LEFT) {
     if (recording) {
@@ -405,8 +320,7 @@ void keyPressed() {
     int i = ci.instrumentIndex - 1;
     if (i < 0) i = 127;
     setProgram(ch, i);
-    Note note = new Note(synth, width/2, ch * padHeight/NUM_CHANNELS + padHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
-    //note.setMessage(ci.instrumentName);  
+    Note note = new Note(synth, width/2, ch * synestrumentHeight/NUM_CHANNELS + synestrumentHeight/NUM_CHANNELS/2, ch, 60, 100, 30); 
     addNote(note);
   }
   
@@ -433,14 +347,14 @@ void keyPressed() {
     int i = ci.instrumentIndex + 1;
     if (i > 127) i = 0;
     setProgram(ch, i);
-    Note note = new Note(synth, width/2, ch * padHeight/NUM_CHANNELS + padHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
+    Note note = new Note(synth, width/2, ch * synestrumentHeight/NUM_CHANNELS + synestrumentHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
     //note.setMessage(ci.instrumentName);  
     addNote(note);
   }
   
-  if (key == 'b') {
-    lastPressTick = sequencer.getTickPosition();
-    int nn = getNote(mouseX);
+  if (key == 'o') {
+    mousePressSeqTick = sequencer.getTickPosition();
+    int nn = synestrument != null ? synestrument.getNote(mouseX) : 60;
     int nd = (int)random(30, 150);
     int v = 100;
     Note note = new Bounce(synth, mouseX, mouseY, ch, nn, v, nd);
@@ -449,11 +363,7 @@ void keyPressed() {
   }
   
   if (key == 'r') {
-      recording = true;
-  }
-  
-  if (key == 's') {
-      recording = false;
+      recording = !recording;
   }
 
   if (key == 'c') {
@@ -503,7 +413,7 @@ void setProgram(int channel, int programNumber) {
       ChannelInfo ci = channelInfo.get(channel);
       ci.instrumentIndex = programNumber;
       ci.instrumentName = synth.getLoadedInstruments()[programNumber].getName();
-      //println("SetProgram:", channel, programNumber);
+      println("SetProgram:", channel, programNumber);
     }
     catch (Exception e) {
       println("EEEEEK", e);
@@ -530,6 +440,7 @@ void createMidiSequence() {
       finalizeSequence(sequence, t);
     }
     sequencer.setSequence(sequence);
+    ticksPerStep = sequence.getResolution() / 4; 
   } catch (InvalidMidiDataException e) {
     e.printStackTrace();
   }

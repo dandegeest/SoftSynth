@@ -9,7 +9,7 @@ class Note extends Sprite {
   PopupMessage pm;
   
   Note(Synthesizer s, float x, float y, int c, int n, int v, int d) {
-    super(x, y);
+    super(x, y, 0, 0);
     synth = s;
     channel = c;
     note = n;

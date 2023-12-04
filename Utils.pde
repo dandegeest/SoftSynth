@@ -79,7 +79,7 @@ MidiEvent createProgramChangeEvent(int channel, int instrument, long tick) {
 }
 
 // Method to iterate over a sequence and get notes at each step
-public int getNoteAtStep(Sequence seq, int trackNumber, int step) {
+int getNoteAtStep(Sequence seq, int trackNumber, int step) {
   if (seq != null) {
     Track track = seq.getTracks()[trackNumber]; // Get the specified track
 
@@ -104,7 +104,7 @@ public int getNoteAtStep(Sequence seq, int trackNumber, int step) {
   return 0;
 }
 
-public void finalizeSequence(Sequence seq, int trackNumber) {
+void finalizeSequence(Sequence seq, int trackNumber) {
   // Add rest notes to end of sequence to make it 32 steps
   if (seq != null) {
     Track track = seq.getTracks()[trackNumber]; // Get the specified track
@@ -117,7 +117,7 @@ public void finalizeSequence(Sequence seq, int trackNumber) {
   }
 }
 
-public double calculateMillisecondsPerTick() {
+double calculateMillisecondsPerTick() {
   if (sequencer != null) {
     long microseconds = sequencer.getMicrosecondLength();
     long ticks = sequencer.getTickLength();
@@ -130,7 +130,7 @@ public double calculateMillisecondsPerTick() {
   return -1; // Return -1 if the sequencer or tick length is not available
 }
 
-public boolean isNaturalNote(int midiNoteNumber) {
+boolean isNaturalNote(int midiNoteNumber) {
     int note = midiNoteNumber % 12; // Get the note number within an octave
 
     // Check if the MIDI note number corresponds to a natural note (C, D, E, F, G, A, or B)
