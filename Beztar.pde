@@ -11,6 +11,8 @@ class Beztar extends Synestrument {
     initStrings();
   }
   
+  String name() { return "Beztar"; }
+
   int getChannel() {
     if (mouseBezString != null) {
       return bezStrings.indexOf(mouseBezString);
@@ -54,29 +56,32 @@ class Beztar extends Synestrument {
     }   
   }
   
-  void onLeftMouseMoved() {
-    if (mouseBezString != null) {
-    }
-  }
-  
   void onLeftMouseDragged() {
     for (int i = 0; i < bezStrings.size(); i++) {
       BeztarString bezs = bezStrings.get(i);
       
-      if (bezs.mouseIn() && i != lastString) {
+      if (bezs.mouseIn()) {
         mouseBezString = bezs;
-        mouseBezString.clicked(mouseX, mouseY);
+        if (i == lastString)
+          return;
         
         int ch = getChannel();
         int nn = getNote(mouseY);//(int)bezs.position.x);
-        println("BZ:Note", nn, ch);
-        int nd = 100;
-        int v = 100;
-        Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
-        addNote(note);
+        if (isNaturalNote(nn)) {
+          println("BZ:Note", nn, ch);
+          int tm = millis() - mousePressMillis;
+          int nd = 100;
+          int v = 100;
+          Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
+          addNote(note);
+          recordNote(note, (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep));
+        }
         lastString = i;
-        break;
-      }
-    }  
+        return;
+      }      
+    }
+    
+    mouseBezString = null;
+    lastString = -1;
   }  
 }

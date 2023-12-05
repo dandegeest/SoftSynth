@@ -50,8 +50,8 @@ int txtColor = synthwavePalette[11];
 int chColor = synthwavePalette[9];
 int nnColor = synthwavePalette[5];
 int nn1Color = synthwavePalette[8];
-int whiteKey = synthwavePalette[10];
-int blackKey = synthwavePalette[11];
+int white = synthwavePalette[10];
+int black = synthwavePalette[11];
 
 //Interaction
 int mousePressMillis;
@@ -71,6 +71,8 @@ ArrayList<Note> notes = new ArrayList<Note>();
 int synestrumentHeight = height - 100;
 Keyano keyano;
 Beztar beztar;
+Feckof feckof;
+int insName = 255;
 
 Synestrument synestrument;
 
@@ -86,9 +88,10 @@ void setup() {
   //Create the synestruments
   beztar = new Beztar(0, 0, width, 50 * NUM_CHANNELS);
   keyano = new Keyano(0, 0, width, 50 * NUM_CHANNELS);
+  feckof = new Feckof(0, 0, width, 50 * NUM_CHANNELS);
   
   //Set current synestrument
-  synestrument = beztar;
+  synestrument = feckof;
 
   dash = new DashedLines(this);
   
@@ -96,7 +99,7 @@ void setup() {
     ChannelInfo ci = new ChannelInfo();
     ci.number = c;
     ci.instrumentIndex = 0;
-    ci.instrumentName = "Piano1";
+    ci.instrumentName = c == 9 ? "Percussion" : "Piano1";
     channelInfo.add(ci);
   }
   
@@ -108,8 +111,22 @@ void draw() {
   if (key == 'd')
     drawPalette();
   drawBpm();
-  if (synestrument != null)
+  if (synestrument != null) {
     synestrument.display();
+    if (insName > 0) {
+      pushStyle();
+      textSize(24);
+      stroke(chColor, insName);
+      strokeWeight(4);
+      noFill();
+      rect(width/2 - 50, 0, 100, 40, 24);
+      noStroke();
+      fill(txtColor, insName);
+      text(synestrument.name(), width/2 - 40, 10, 100, 40);
+      popStyle();
+      insName-=2.5;
+    }
+  }
   drawSequencer();
   drawNotes();
 }
@@ -292,15 +309,21 @@ void recordNote(Note note, long noteDuration) {
   }
 }
 
+void showInstrument(Synestrument si) {
+  synestrument = si;
+  insName = 255;
+}
 void keyPressed() {
-  println("KEY", key);
-
   if (key == 'k') {
-    synestrument = keyano;
+    showInstrument(keyano);
   }
   
   if (key == 'b') {
-    synestrument = beztar;
+    showInstrument(beztar);
+  }
+
+  if (key == 'f') {
+    showInstrument(feckof);
   }
 
   int ch = 0;
@@ -400,7 +423,7 @@ void stopNote(Note note) {
 }
 
 void setProgram(int channel, int programNumber) {
-  if (synth != null) {
+  if (synth != null && channel != 9) {
     try {
       // Change the program number (instrument) using CC message
       int ccNumber = 0x00; // Control Change number for Bank Select MSB

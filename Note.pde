@@ -9,12 +9,22 @@ class Note extends Sprite {
   PopupMessage pm;
   
   Note(Synthesizer s, float x, float y, int c, int n, int v, int d) {
-    super(x, y, 0, 0);
+    super(x, y, d, d);
     synth = s;
     channel = c;
     note = n;
     volume = v;
     initialDelay = delay = d;
+  }
+  
+  boolean mouseIn() {
+    if (mouseX >= position.x - width/2 &&
+      mouseX <= position.x + width/2 &&
+      mouseY >= position.y - height/2 &&
+      mouseY <= position.y + height/2)
+      return true;
+
+    return false;
   }
   
   void setMessage(String msg) {

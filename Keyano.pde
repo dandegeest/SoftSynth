@@ -6,6 +6,8 @@ class Keyano extends Synestrument {
     println("Keyano", x, y, width, height);
   }
 
+  String name() { return "Keyano"; }
+
   boolean padVisible() {
     return true;
   }
@@ -39,9 +41,9 @@ class Keyano extends Synestrument {
             noStroke();
             int n = getNote(x);
             if (isNaturalNote(n))
-              fill(whiteKey, 200);
+              fill(white, 200);
             else
-              fill(blackKey,200);
+              fill(black,200);
             rect(x, y, width/NUM_NOTES, height/NUM_CHANNELS);
           }
         popStyle();    
