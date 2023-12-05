@@ -1,10 +1,10 @@
 PVector GRAVITY = new PVector(0, 0.2);
 
-class Bounce extends Note {
+class Bawl extends Note {
   int groundCnt = 0;
   float volDecay;
   
-  Bounce(Synthesizer s, float x, float y, int c, int n, int v, int d) {
+  Bawl(Synthesizer s, float x, float y, int c, int n, int v, int d) {
     super(s, x, y, c, n, v, d);
     if (x > synestrumentWidth / 2 )
       velocity = new PVector(-1*max(5, random(15)), 0);
