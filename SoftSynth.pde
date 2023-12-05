@@ -69,16 +69,17 @@ ArrayList<Note> notes = new ArrayList<Note>();
 
 //Synestruments
 int synestrumentHeight = height - 100;
+int synestrumentWidth = width;
 Keyano keyano;
 Beztar beztar;
 Feckof feckof;
+Bawler bawler;
 int insName = 255;
 
 Synestrument synestrument;
 
 void setup() {
   size(128 * 10, 50 * 16 + 110); // (END_NOTE - START_NOTE) * 15, 50 * NUM_CHANNELS
-  synestrumentHeight = 50 * 16;  
   background(bgColor);
   initMidi();
   initSerial();
@@ -86,12 +87,15 @@ void setup() {
   createMidiSequence();
   
   //Create the synestruments
-  beztar = new Beztar(0, 0, width, 50 * NUM_CHANNELS);
-  keyano = new Keyano(0, 0, width, 50 * NUM_CHANNELS);
-  feckof = new Feckof(0, 0, width, 50 * NUM_CHANNELS);
+  synestrumentHeight = 50 * NUM_CHANNELS;  
+  synestrumentWidth = width;  
+  beztar = new Beztar(0, 0, synestrumentWidth, synestrumentHeight);
+  keyano = new Keyano(0, 0, synestrumentWidth, synestrumentHeight);
+  feckof = new Feckof(0, 0, synestrumentWidth, synestrumentHeight);
+  bawler = new Bawler(0, 0, synestrumentWidth, synestrumentHeight);
   
   //Set current synestrument
-  synestrument = feckof;
+  synestrument = bawler;
 
   dash = new DashedLines(this);
   
@@ -108,8 +112,6 @@ void setup() {
 
 void draw() {
   background(bgColor);
-  if (key == 'd')
-    drawPalette();
   drawBpm();
   if (synestrument != null) {
     synestrument.display();
@@ -129,6 +131,8 @@ void draw() {
   }
   drawSequencer();
   drawNotes();
+  if (key == 'd')
+    drawPalette();
 }
 
 void drawBpm() {
@@ -317,6 +321,11 @@ void showInstrument(Synestrument si) {
   insName = 255;
 }
 void keyPressed() {
+  
+  if (synestrument != null)
+      if (synestrument.onKeyPressed() == true)
+        return;
+      
   if (key == 'k') {
     showInstrument(keyano);
   }
@@ -327,6 +336,10 @@ void keyPressed() {
 
   if (key == 'f') {
     showInstrument(feckof);
+  }
+
+  if (key == 'w') {
+    showInstrument(bawler);
   }
 
   int ch = 0;
@@ -376,16 +389,6 @@ void keyPressed() {
     Note note = new Note(synth, width/2, ch * synestrumentHeight/NUM_CHANNELS + synestrumentHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
     //note.setMessage(ci.instrumentName);  
     addNote(note);
-  }
-  
-  if (key == 'o') {
-    mousePressSeqTick = sequencer.getTickPosition();
-    int nn = synestrument != null ? synestrument.getNote(mouseX) : 60;
-    int nd = (int)random(30, 150);
-    int v = 100;
-    Note note = new Bounce(synth, mouseX, mouseY, ch, nn, v, nd);
-    addNote(note);
-    recordNote(note, 1);
   }
   
   if (key == 'r') {

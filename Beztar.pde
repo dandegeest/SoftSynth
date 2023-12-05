@@ -11,7 +11,7 @@ class Beztar extends Synestrument {
     initStrings();
   }
   
-  String name() { return "Beztar"; }
+  String name() { return "BeZtar"; }
 
   int getChannel() {
     if (mouseBezString != null) {

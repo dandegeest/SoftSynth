@@ -13,6 +13,9 @@ class Sprite {
   void update() {}
   void display() {}
   
+  //Key
+  boolean onKeyPressed() { return false; }
+  
   //Mouse
   boolean mouseIn() { return false;}
   

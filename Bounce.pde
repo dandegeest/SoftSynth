@@ -6,18 +6,18 @@ class Bounce extends Note {
   
   Bounce(Synthesizer s, float x, float y, int c, int n, int v, int d) {
     super(s, x, y, c, n, v, d);
-    if (x > width / 2 )
+    if (x > synestrumentWidth / 2 )
       velocity = new PVector(-1*max(5, random(15)), 0);
     else
       velocity = new PVector(max(5, random(15)), 0);
       
-    volDecay = 2.5;
+    volDecay = 0.5;
   }
   
   boolean doneBouncing() { return groundCnt > 5; }
   boolean onGround()
   {
-    return position.y + delay * 2 > height;
+    return position.y + delay * 2 > synestrumentHeight;
   }
   
   void update() {
@@ -28,13 +28,13 @@ class Bounce extends Note {
     position.add(velocity);
     
     // Check for collisions with walls
-    if (position.x > width - delay / 2 || position.x < delay / 2) {
+    if (position.x > synestrumentWidth - delay / 2 || position.x < delay / 2) {
       velocity.x *= -1;
       volume -= volDecay;
       //play();
     }
-    if (position.y + delay / 2 > height) {
-      position.y = height - delay;
+    if (position.y + delay / 2 > synestrumentHeight) {
+      position.y = synestrumentHeight - delay;
       velocity.y *= -0.8;
       volume -= volDecay;
       //play();
