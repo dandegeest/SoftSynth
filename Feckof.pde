@@ -6,7 +6,7 @@ class Feckof extends Synestrument {
   Note mouseNote;
 
   String[] noteNames = {"C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"};
-  int[] notes = {60, 67, 62, 69, 64, 71, 66, 61, 68, 63, 70, 65};
+  int[] notes = {48, 67, 62, 69, 64, 71, 66, 61, 68, 63, 70, 65};
   
   ArrayList<Note> circle = new ArrayList<Note>();
   
@@ -26,6 +26,13 @@ class Feckof extends Synestrument {
     return note;
   }
   
+  String getNoteName(int n) {
+    for (int i = 0; i < segments; i++) {
+      if (notes[i] == n) return noteNames[i];
+    }
+    return "";
+  }
+  
   void display() {
     for (int i = 0; i < circle.size(); i++) {
       Note n = circle.get(i);
@@ -41,7 +48,7 @@ class Feckof extends Synestrument {
       fill(white, 128);
       textSize(36);
       textAlign(CENTER, CENTER);
-      text(noteNames[i], n.position.x - 50, n.position.y-50, 100, 100);
+      text(getNoteName(n.note), n.position.x - 50, n.position.y-50, 100, 100);
       popStyle();
     }
   }
@@ -60,17 +67,14 @@ class Feckof extends Synestrument {
     for (int i = 0; i < circle.size(); i++) {
       Note cn = circle.get(i);
       if (cn.mouseIn()) {
-        if (cn == mouseNote)
-          return;
-          
         int[] chord = new int[3];
         chord[0] = i % segments;
         chord[1] = (i+1) % segments;
         chord[2] = (i+4) % segments;   
         //println(noteNames[chord[0]],noteNames[chord[1]],noteNames[chord[2]]);
-        for (int n = 0; n < chord.length; n++) {
+        for (int n = 0; n < (key == '1' ? 1 :chord.length); n++) {
           Note note = circle.get(chord[n]);
-          int nd = (int)cn.delay;
+          int nd = 100;
           int v = 100;
           Note nn = new Note(synth, mouseX, mouseY, note.channel, note.note, v, nd);
           addNote(nn);
@@ -97,9 +101,9 @@ class Feckof extends Synestrument {
         chord[1] = (i+1) % segments;
         chord[2] = (i+4) % segments;   
         //println(noteNames[chord[0]],noteNames[chord[1]],noteNames[chord[2]]);
-        for (int n = 0; n < chord.length; n++) {
+        for (int n = 0; n < (key == '1' ? 1 :chord.length); n++) {
           Note note = circle.get(chord[n]);
-          int nd = 30;
+          int nd = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 15, 100);
           int v = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 0, 127);
           Note nn = new Note(synth, mouseX, mouseY, note.channel, note.note, v, nd);
           addNote(nn);

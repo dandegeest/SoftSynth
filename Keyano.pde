@@ -6,7 +6,7 @@ class Keyano extends Synestrument {
     println("Keyano", x, y, width, height);
   }
 
-  String name() { return "Keyano"; }
+  String name() { return "Keyanot"; }
 
   boolean padVisible() {
     return true;
@@ -93,6 +93,7 @@ class Keyano extends Synestrument {
       }
       else
         nn = getNote(mouseX);
+      textSize(14);
       text(""+nn, mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
       popStyle();
     }

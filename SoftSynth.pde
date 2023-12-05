@@ -119,10 +119,10 @@ void draw() {
       stroke(chColor, insName);
       strokeWeight(4);
       noFill();
-      rect(width/2 - 50, 0, 100, 40, 24);
+      rect(width - 100, 0, 100, 40, 12);
       noStroke();
       fill(txtColor, insName);
-      text(synestrument.name(), width/2 - 40, 10, 100, 40);
+      text(synestrument.name(), width - 90, 10, 100, 40);
       popStyle();
       insName-=2.5;
     }
@@ -144,6 +144,8 @@ void drawBpm() {
 }
 
 void drawPalette() {
+  pushStyle();
+  textSize(12);
   int w = width/synthwavePalette.length;
   for (int i = 0; i < synthwavePalette.length; i++) {
     noStroke();
@@ -155,6 +157,7 @@ void drawPalette() {
       fill(0);
     text(hex(synthwavePalette[i]).substring(2), i * w, 10, w, 50);
   }
+  popStyle();
 } //<>//
 
 void drawNotes() {
