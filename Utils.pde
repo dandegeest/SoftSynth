@@ -114,7 +114,7 @@ void finalizeSequence(Sequence seq, int trackNumber) {
         track.add(createNoteOffEvent(0, 0, 0, t));
       }
     }
-  }
+  }  
 }
 
 double calculateMillisecondsPerTick() {

@@ -7,17 +7,17 @@ class Bawl extends Note {
   Bawl(Synthesizer s, float x, float y, int c, int n, int v, int d) {
     super(s, x, y, c, n, v, d);
     if (x > synestrumentWidth / 2 )
-      velocity = new PVector(-1*max(5, random(15)), 0);
+      velocity = new PVector(-1*random(5,20), 0);
     else
-      velocity = new PVector(max(5, random(15)), 0);
+      velocity = new PVector(random(5, 20), 0);
       
-    volDecay = 0.5;
+    volDecay = 1;
   }
   
   boolean doneBouncing() { return groundCnt > 5; }
   boolean onGround()
   {
-    return position.y + delay * 2 > synestrumentHeight;
+    return ceil(position.y + delay/2) >= synestrumentHeight;
   }
   
   void update() {
@@ -28,32 +28,27 @@ class Bawl extends Note {
     position.add(velocity);
     
     // Check for collisions with walls
-    if (position.x > synestrumentWidth - delay / 2 || position.x < delay / 2) {
+    if (position.x > synestrumentWidth || position.x < 0) {
       velocity.x *= -1;
       volume -= volDecay;
-      //play();
     }
-    if (position.y + delay / 2 > synestrumentHeight) {
+    if (position.y > synestrumentHeight) {
       position.y = synestrumentHeight - delay;
       velocity.y *= -0.8;
       volume -= volDecay;
-      //play();
     }
     
     if (onGround()) { 
       stop();
-      volume -= volDecay;
+      groundCnt++;
+      note = synestrument.getNote(floor(position.x));
       play();
-      //note = (int)map(position.x, 0, width, 24, 95);
-      //play();
-      delay--;
+      delay -= 4;
     }
   }
   
   void display() {
     super.display();
-    stroke(0);
-    fill(0);
-    ellipse(position.x, position.y + delay / 2, 5, 5);
+    ellipse(position.x, position.y, 10, 10);
   }
 }

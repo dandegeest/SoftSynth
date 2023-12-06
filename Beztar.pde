@@ -17,8 +17,15 @@ class Beztar extends Synestrument {
     if (mouseBezString != null) {
       return bezStrings.indexOf(mouseBezString);
     }
-     
-     return 0;
+  
+    for (int i = 0; i < bezStrings.size(); i++) {
+      BeztarString bezs = bezStrings.get(i);
+      if (bezs.mouseIn()) {
+        return i;
+      }
+    }
+    
+    return 0;
   }
   
   int getNote(int pos) {

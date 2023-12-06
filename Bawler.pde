@@ -20,39 +20,32 @@ class Bawler extends Synestrument {
   }
   
   void display() {
-    drawBawls();
-  }
-  
-  void drawBawls() {
-    ArrayList<Bawl> bawlsDone = new ArrayList<Bawl>();
-    for (int i = 0; i < bawls.size(); i++) {
-      Bawl b = bawls.get(i);
-      b.update();
-      b.display();
-      if (b.delay == 0) {
-        bawlsDone.add(b);
-        stopNote(b);
-      }
+    int nn = getNote(mouseX);
+    if (isNaturalNote(nn)) {
+      pushStyle();
+      noStroke();
+      fill(lerpColor(nn1Color, nnColor, map(nn, START_NOTE, END_NOTE, 0, 1)));
+      ellipseMode(CENTER);
+      ellipse(mouseX, mouseY, 16, 16);
+      popStyle();
     }
-    
-    bawls.removeAll(bawlsDone);
   }
   
   boolean onKeyPressed() {
     return false;
   }
   
-  void onLeftMousePressed() {
+  void onLeftMouseReleased() {
     int nn = getNote(mouseX);
-    int nd = (int)random(30, 150);
+    if (!isNaturalNote(nn))
+      return;
+    int nd = millis() - mousePressMillis;
     int v = 100;
     Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), nn, v, nd);
-    bawls.add(bawl);
     addNote(bawl);
     //recordNote(note, 1);
   }
   
   void onLeftMouseDragged() {
-
   } 
 }

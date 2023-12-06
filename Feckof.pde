@@ -4,8 +4,10 @@ class Feckof extends Synestrument {
   float angleIncrement = TWO_PI / segments;
   int dir = 1;
   int octave = 0;
-  int octaveDisplay = 255;
+  int octaveDisplay = 0;
   Note mouseNote;
+  int noteMode = 3;
+  int channel = 0;
 
   String[] noteNames = {"C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"};
   int[] notes = {48, 67, 62, 69, 64, 71, 66, 61, 68, 63, 70, 65};
@@ -14,13 +16,13 @@ class Feckof extends Synestrument {
   
   Feckof(float x, float y, int w, int h) {
     super(x, y, w, h);
-    radius = (h - 200)/2;
+    radius = (h - 350)/2;
     initCof();
   }
   
   String name() { return "FekCOF"; }
   int getChannel() {
-    return 0;
+    return channel;
   }
   
   int getNote(int pos) {
@@ -35,7 +37,7 @@ class Feckof extends Synestrument {
     return "";
   }
   
-  void display() {
+  void display() {    
     for (int i = 0; i < circle.size(); i++) {
       Note n = circle.get(i);
       //n.update();
@@ -43,14 +45,14 @@ class Feckof extends Synestrument {
         dir = -1;
       else if (n.delay < 90)
         dir = 1;
-      n.delay += dir;
+      //n.delay += dir;
       
       n.display();
       pushStyle();
       fill(white, 128);
       textSize(36);
       textAlign(CENTER, CENTER);
-      text(getNoteName(n.note), n.position.x - 50, n.position.y-50, 100, 100);
+      text(getNoteName(n.note), n.position.x - 50, n.position.y - 50, 100, 100);
       popStyle();
     }
     
@@ -65,12 +67,35 @@ class Feckof extends Synestrument {
       popStyle();
     }
     
+    int cw = (synestrumentWidth-400)/NUM_CHANNELS;
+    for (int i = 0; i < NUM_CHANNELS; i++) {
+      //Chanel bars
+      pushStyle();
+      strokeWeight(0);
+      stroke(chColor);
+      fill(lerpColor(synthwavePalette[5],synthwavePalette[15], map(i, 0, NUM_CHANNELS, 0, 1)));
+      rect(200 + i * cw, 0, cw, 40, 12);
+      if (i == getChannel()) {
+        textSize(34);
+        textAlign(CENTER, CENTER);
+        fill(white, octaveDisplay);
+        text(""+i, 200 + i * cw, 0, cw, 40);
+      }
+      popStyle();
+    }
+
     // Current octave
     // Chord or note mode?
     if (octaveDisplay > 0) {      
       pushStyle();
-      noStroke();
+      strokeWeight(0);
+      stroke(chColor);
       ellipseMode(CENTER);
+
+      fill(white, octaveDisplay);
+      for (int i = 0; i < noteMode; i++) {
+        ellipse(width/2, height/2 + i * 20 - 48, 16, 16);
+      }
 
       for (int i = 0; i < 6; i++) {
         if (i <= map(octave, -20, 30, 0, 5))
@@ -78,14 +103,6 @@ class Feckof extends Synestrument {
         else
           fill(white, octaveDisplay);
         ellipse(width/2 + i * 20 - 60, height/2 - 8, 16, 16);
-      }
-      
-      fill(white, octaveDisplay);
-      for (int i = 0; i < 3; i++) {
-        ellipse(width/2, height/2 + i * 20 - 50, 16, 16);
-        if (key == '1') {
-          break;
-        }
       }
 
       octaveDisplay -= 5;
@@ -104,13 +121,33 @@ class Feckof extends Synestrument {
   }
   
   boolean onKeyPressed() {
-    if (key == '1')
+    if (key == '1') {
+      noteMode = noteMode == 1 ? 3 : 1;
       octaveDisplay = 255;
+    }
       
     return false;
   }
   
   void onLeftMousePressed() {
+    if (mouseX <= 200 || mouseX > width - 200) {
+      for (int i = 0; i < 6; i++) {
+        if (mouseY > i * height/6 &&
+            mouseY < (i == 5 ? height : (i + 1) * height/6)) {
+              octave = (int)map(i, 0, 5, -20, 30);
+              octaveDisplay = 255;
+            }
+      }
+      return;
+    }
+
+    if (mouseX > 200 && mouseX < width - 200 && mouseY < 40) {
+      for (int i = 0; i < NUM_CHANNELS; i++) {
+         channel = (int)map(mouseX, 200, width-200, 0, NUM_CHANNELS);
+         octaveDisplay = 255;
+      }
+    }
+
     for (int i = 0; i < circle.size(); i++) {
       Note cn = circle.get(i);
       if (cn.mouseIn()) {
@@ -119,11 +156,12 @@ class Feckof extends Synestrument {
         chord[1] = (i+1) % segments;
         chord[2] = (i+4) % segments;   
         //println(noteNames[chord[0]],noteNames[chord[1]],noteNames[chord[2]]);
-        for (int n = 0; n < (key == '1' ? 1 :chord.length); n++) {
+        for (int n = 0; n < noteMode; n++) {
           Note note = circle.get(chord[n]);
           int nd = 100;
-          int v = 100;
-          Note nn = new Note(synth, mouseX, mouseY, note.channel, note.note + octave, v, nd);
+          int cd = (int)dist(mouseX, mouseY, cn.position.x, cn.position.y);
+          int v = (int)map(cd, 0, 50, 100, 50);
+          Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave, v, nd);
           addNote(nn);
           recordNote(nn, 1);
         }
@@ -142,11 +180,19 @@ class Feckof extends Synestrument {
             mouseY < (i == 5 ? height : (i + 1) * height/6)) {
               octave = (int)map(i, 0, 5, -20, 30);
               octaveDisplay = 255;
-            }
+        }
       }
+      return;
     }
     
-    
+    if (mouseX > 200 && mouseX < width - 200 && mouseY < 40) {
+      for (int i = 0; i < NUM_CHANNELS; i++) {
+         channel = (int)map(mouseX, 200, width-200, 0, NUM_CHANNELS);
+         octaveDisplay = 255;
+      }
+      return;
+    }
+
     for (int i = 0; i < circle.size(); i++) {
       Note cn = circle.get(i);
       if (cn.mouseIn()) {
@@ -159,11 +205,11 @@ class Feckof extends Synestrument {
         chord[1] = (i+1) % segments;
         chord[2] = (i+4) % segments;   
         //println(noteNames[chord[0]],noteNames[chord[1]],noteNames[chord[2]]);
-        for (int n = 0; n < (key == '1' ? 1 :chord.length); n++) {
+        for (int n = 0; n < noteMode; n++) {
           Note note = circle.get(chord[n]);
           int nd = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 15, 100);
           int v = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 0, 127);
-          Note nn = new Note(synth, mouseX, mouseY, note.channel, note.note + octave, v, nd);
+          Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave, v, nd);
           addNote(nn);
           recordNote(nn, (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep));
         }

@@ -22,9 +22,9 @@ class BeztarString extends Sprite
   }
   
   boolean mouseIn() {
-    int nn = beztar.getNote(mouseY);//(int)bezs.position.x);
+    int nn = synestrument.getNote(mouseY);//(int)bezs.position.x);
         //if (isNaturalNote(nn)) {
-    return abs(position.x - mouseX) < MOUSEIN_SIZE && isNaturalNote(nn) ? true : false;
+    return abs(position.x - mouseX) < MOUSEIN_SIZE && isNaturalNote(nn);
   }
 
   boolean mouseIn2() {
@@ -46,14 +46,13 @@ class BeztarString extends Sprite
   void display() {
     drawAnchor();
     
-    noStroke();
-    
+    noFill();
     if (mouseIn()) {
-      strokeWeight(4);
-      stroke(txtColor);
+      strokeWeight(2);
+      stroke(chColor);
+       fill(dotColor);
     }
     
-    fill(dotColor);
     ellipse(position.x, position.y, width, height);
   }
   
@@ -81,8 +80,9 @@ class BeztarString extends Sprite
       float t = i / float(steps);
       float x = bezierPoint(position.x, cp1x, position.x, anchor.position.x, t);
       float y = bezierPoint(position.y, mouseY, position.y, anchor.position.y, t);
-      fill(lerpColor(nn1Color, nnColor, map(y, 0, synestrumentHeight, 0, 1)));
-      ellipse(x, y, 20, 10);
+      stroke(lerpColor(nn1Color, nnColor, map(y, 0, synestrumentHeight, 0, 1)));
+      noFill();
+      ellipse(x, y, 10, 10);
     }
 
     anchor.display();

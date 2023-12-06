@@ -70,13 +70,12 @@ ArrayList<Note> notes = new ArrayList<Note>();
 //Synestruments
 int synestrumentHeight = height - 100;
 int synestrumentWidth = width;
-Keyano keyano;
-Beztar beztar;
-Feckof feckof;
-Bawler bawler;
+ArrayList<Synestrument> syns = new ArrayList<Synestrument>();
+
 int insName = 255;
 
 Synestrument synestrument;
+int currSyn = 0;
 
 void setup() {
   size(128 * 10, 50 * 16 + 110); // (END_NOTE - START_NOTE) * 15, 50 * NUM_CHANNELS
@@ -89,13 +88,13 @@ void setup() {
   //Create the synestruments
   synestrumentHeight = 50 * NUM_CHANNELS;  
   synestrumentWidth = width;  
-  beztar = new Beztar(0, 0, synestrumentWidth, synestrumentHeight);
-  keyano = new Keyano(0, 0, synestrumentWidth, synestrumentHeight);
-  feckof = new Feckof(0, 0, synestrumentWidth, synestrumentHeight);
-  bawler = new Bawler(0, 0, synestrumentWidth, synestrumentHeight);
+  syns.add(new Keyano(0, 0, synestrumentWidth, synestrumentHeight));
+  syns.add(new Beztar(0, 0, synestrumentWidth, synestrumentHeight));
+  syns.add(new Feckof(0, 0, synestrumentWidth, synestrumentHeight));
+  syns.add(new Bawler(0, 0, synestrumentWidth, synestrumentHeight));
   
   //Set current synestrument
-  synestrument = bawler;
+  synestrument = syns.get(currSyn);
 
   dash = new DashedLines(this);
   
@@ -121,10 +120,12 @@ void draw() {
       stroke(chColor, insName);
       strokeWeight(4);
       noFill();
-      rect(width - 100, 0, 100, 40, 12);
+      rect(width/2 - 150, synestrumentHeight/2 - 35, 300, 70, 12);
       noStroke();
-      fill(txtColor, insName);
-      text(synestrument.name(), width - 90, 10, 100, 40);
+      fill(white, insName);
+      textAlign(CENTER, CENTER);
+      textSize(64);
+      text(synestrument.name(),0, 0, width, synestrumentHeight);
       popStyle();
       insName-=2.5;
     }
@@ -170,7 +171,7 @@ void drawNotes() {
     Note note = notes.get(i);
     note.update();
     note.display();
-    if (note.delay == 0) {
+    if (note.delay <= 0) {
       notesDone.add(note);
       stopNote(note);
     }
@@ -326,21 +327,19 @@ void keyPressed() {
       if (synestrument.onKeyPressed() == true)
         return;
       
-  if (key == 'k') {
-    showInstrument(keyano);
+  if (key == 'q') {
+    currSyn++;
+    if (currSyn == syns.size())
+      currSyn = 0;
+      
+    showInstrument(syns.get(currSyn));
   }
   
-  if (key == 'b') {
-    showInstrument(beztar);
+  if (key == 'k') {
+    currSyn = 0;
+    showInstrument(syns.get(currSyn));
   }
 
-  if (key == 'f') {
-    showInstrument(feckof);
-  }
-
-  if (key == 'w') {
-    showInstrument(bawler);
-  }
 
   int ch = 0;
   if (synestrument != null) {
