@@ -61,7 +61,7 @@ int mousePressY;
 
 //Serial COM
 Serial sPort;
-float knock = 0;
+float knock = 500;
 String message;
 
 // Active notes
@@ -76,6 +76,16 @@ int insName = 255;
 
 Synestrument synestrument;
 int currSyn = 0;
+
+int currS = 0;
+int currY = 0;
+int gridX = 0;
+int gridY = 0;
+
+int x;
+int y;
+
+int ss = 50;
 
 void setup() {
   size(128 * 10, 50 * 16 + 110); // (END_NOTE - START_NOTE) * 15, 50 * NUM_CHANNELS
@@ -106,7 +116,12 @@ void setup() {
     channelInfo.add(ci);
   }
   
-  //fullScreen();
+  fullScreen();
+  
+  gridX = width / ss;
+  gridY = synestrumentHeight / ss;
+  x = width/2;
+  y = synestrumentHeight/2;
 }
 
 void draw() {
@@ -132,6 +147,7 @@ void draw() {
   }
   drawSequencer();
   drawNotes();
+  drawVis();
   if (key == 'd')
     drawPalette();
 }
@@ -178,6 +194,28 @@ void drawNotes() {
   }
   
   notes.removeAll(notesDone);
+}
+
+void drawVis() {
+    //drawVis1();
+    currS++;
+    if (currS > gridX)  {
+      currS = 0;
+      currY += ss;
+    }
+    
+    if (currY > height) {
+      currY = 0;
+      background(0);
+    }    
+}
+
+void drawVis1() {
+  ellipseMode(CENTER);
+  float f = map(knock, 0, 2000, 0, 255);
+  noStroke();
+  fill(synthwavePalette[(int)random(16)], 100);
+  ellipse(currS * ss, currY, f, f);
 }
 
 void drawSequencer() {
