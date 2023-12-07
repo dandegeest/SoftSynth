@@ -1,10 +1,4 @@
 class Bawler extends Synestrument {
-
-  String[] noteNames = {"C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"};
-  int[] notes = {48, 67, 62, 69, 64, 71, 66, 61, 68, 63, 70, 65};
-  
-  ArrayList<Bawl> bawls = new ArrayList<Bawl>();
-  
   Bawler(float x, float y, int w, int h) {
     super(x, y, w, h);
   }
@@ -39,7 +33,7 @@ class Bawler extends Synestrument {
     int nn = getNote(mouseX);
     if (!isNaturalNote(nn))
       return;
-    int nd = millis() - mousePressMillis;
+    int nd = ceil((millis() - mousePressMillis) * frameRate/1000);
     int v = 100;
     Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), nn, v, nd);
     addNote(bawl);

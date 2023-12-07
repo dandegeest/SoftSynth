@@ -2,7 +2,7 @@ PVector GRAVITY = new PVector(0, 0.2);
 
 class Bawl extends Note {
   int groundCnt = 0;
-  float volDecay;
+  float radius;
   
   Bawl(Synthesizer s, float x, float y, int c, int n, int v, int d) {
     super(s, x, y, c, n, v, d);
@@ -11,13 +11,13 @@ class Bawl extends Note {
     else
       velocity = new PVector(random(5, 20), 0);
       
-    volDecay = 1;
+    radius = d;
   }
   
-  boolean doneBouncing() { return groundCnt > 5; }
+  boolean doneBouncing() { return groundCnt > 200; }
   boolean onGround()
   {
-    return ceil(position.y + delay/2) >= synestrumentHeight;
+    return position.y + radius >= synestrumentHeight;
   }
   
   void update() {
@@ -28,27 +28,35 @@ class Bawl extends Note {
     position.add(velocity);
     
     // Check for collisions with walls
-    if (position.x > synestrumentWidth || position.x < 0) {
-      velocity.x *= -1;
-      volume -= volDecay;
+    if (position.x > synestrumentWidth - radius || position.x < radius) {
+      velocity.x *= -1; // Reverse horizontal velocity on wall collision
     }
-    if (position.y > synestrumentHeight) {
-      position.y = synestrumentHeight - delay;
-      velocity.y *= -0.8;
-      volume -= volDecay;
+    if (position.y > synestrumentHeight - radius) {
+      position.y = synestrumentHeight - radius;
+      velocity.y *= -0.8; // Reverse and dampen vertical velocity on ground collision
     }
     
-    if (onGround()) { 
-      stop();
+    if (onGround()) {
       groundCnt++;
-      note = synestrument.getNote(floor(position.x));
-      play();
-      delay -= 4;
+      int nn = synestrument.getNote(floor(position.x));
+      if (abs(note - nn) % 12 == 0) {  //((isNaturalNote(newNote))
+        radius = max(10, radius - 10);
+        stop();
+        note = nn;
+        play();
+      }
+    }
+    
+    if (doneBouncing()) { 
+      stop();
+      delay = 0;
     }
   }
   
   void display() {
-    super.display();
-    ellipse(position.x, position.y, 10, 10);
+    ellipseMode(CORNER);
+    noStroke();
+    fill(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+    ellipse(position.x, position.y, radius, radius);;
   }
 }
