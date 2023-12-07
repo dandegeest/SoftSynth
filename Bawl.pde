@@ -42,7 +42,7 @@ class Bawl extends Note {
       int nn = synestrument.getNote(floor(position.x));
       if (abs(note - nn) % 12 == 0) {  //((isNaturalNote(newNote))
         radius = max(10, radius - 10);
-        Note n = new Note(synth, 0, 0, channel, nn, volume, (int)delay);
+        Note n = new Note(synth, 0, 0, channel, nn, volume - notesPlayed.size(), (int)delay);
         notesPlayed.add(n);
         n.play();
         for (int i = 0; i < min(4, notesPlayed.size()); i ++)

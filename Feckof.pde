@@ -1,5 +1,15 @@
+final static int[] circleOF = {60, 67, 62, 69, 64, 71, 66, 61, 68, 63, 70, 65};
+int findCoF(int nn) {
+  for (int n = 0; n < circleOF.length; n++) {
+    if (circleOF[n] == nn)
+      return n;
+  }
+  
+  return -1;
+}
+
 class Feckof extends Synestrument {
-  int segments = 12;
+  int segments = circleOF.length;
   float radius = 150;
   float angleIncrement = TWO_PI / segments;
   int dir = 1;
@@ -10,7 +20,6 @@ class Feckof extends Synestrument {
   int channel = 0;
 
   String[] noteNames = {"C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"};
-  int[] notes = {48, 67, 62, 69, 64, 71, 66, 61, 68, 63, 70, 65};
   
   ArrayList<Note> circle = new ArrayList<Note>();
   
@@ -32,7 +41,7 @@ class Feckof extends Synestrument {
   
   String getNoteName(int n) {
     for (int i = 0; i < segments; i++) {
-      if (notes[i] == n) return noteNames[i];
+      if (circleOF[i] == n) return noteNames[i];
     }
     return "";
   }
@@ -116,7 +125,7 @@ class Feckof extends Synestrument {
       float x = cos(angle) * radius + width/2;
       float y = sin(angle) * radius + height/2;
       
-      circle.add(new Note(synth, x, y, 0, notes[i], 100, 100));
+      circle.add(new Note(synth, x, y, 0, circleOF[i], 100, 100));
     }
   }
   
@@ -134,7 +143,7 @@ class Feckof extends Synestrument {
       for (int i = 0; i < 6; i++) {
         if (mouseY > i * height/6 &&
             mouseY < (i == 5 ? height : (i + 1) * height/6)) {
-              octave = (int)map(i, 0, 5, -20, 30);
+              octave = (int)map(i, 0, 5, -2, 3);
               octaveDisplay = 255;
             }
       }
@@ -161,7 +170,7 @@ class Feckof extends Synestrument {
           int nd = 100;
           int cd = (int)dist(mouseX, mouseY, cn.position.x, cn.position.y);
           int v = (int)map(cd, 0, 50, 100, 50);
-          Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave, v, nd);
+          Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave*segments, v, nd);
           addNote(nn);
           recordNote(nn, 1);
         }
@@ -178,7 +187,7 @@ class Feckof extends Synestrument {
       for (int i = 0; i < 6; i++) {
         if (mouseY > i * height/6 &&
             mouseY < (i == 5 ? height : (i + 1) * height/6)) {
-              octave = (int)map(i, 0, 5, -20, 30);
+              octave = (int)map(i, 0, 5, -2, 3);
               octaveDisplay = 255;
         }
       }
@@ -209,7 +218,7 @@ class Feckof extends Synestrument {
           Note note = circle.get(chord[n]);
           int nd = millis() - mousePressMillis; //constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 15, 100);
           int v = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 0, 127);
-          Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave, v, nd);
+          Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave*segments, v, nd);
           addNote(nn);
           recordNote(nn, (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep));
         }

@@ -117,7 +117,7 @@ void setup() {
     channelInfo.add(ci);
   }
   
-  fullScreen();
+  //fullScreen();
   
   gridX = width / ss;
   gridY = synestrumentHeight / ss;
@@ -133,8 +133,7 @@ void draw() {
     stroke(black, 128);
     strokeWeight(1);
     dash.pattern(2, 4);
-    dash.line(synestrumentWidth / 2 + (synestrumentWidth/NUM_NOTES)/2,
-              0, synestrumentWidth / 2 + (synestrumentWidth/NUM_NOTES)/2, synestrumentHeight);
+    dash.line(synestrumentWidth / 2, 0, synestrumentWidth / 2, synestrumentHeight);
     popStyle();
     synestrument.display();
     if (insName > 0) {

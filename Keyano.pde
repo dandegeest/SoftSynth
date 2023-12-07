@@ -30,12 +30,12 @@ class Keyano extends Synestrument {
   }
   
   void display() {
-    division = mouseButton == RIGHT ? NUM_INSTRUMENTS : NUM_NOTES;    
+    division = mouseButton == RIGHT && !naturalOnly ? NUM_INSTRUMENTS : NUM_NOTES;    
     drawGrid();   
     //Current Cell
     if (mouseY < height) {
       int nn;
-      if (mouseButton == RIGHT) {
+      if (mouseButton == RIGHT && !naturalOnly) {
         textSize(14);
         nn = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
       }
@@ -64,7 +64,7 @@ class Keyano extends Synestrument {
       activeChannel = mouseY >= y && mouseY <= y + height/NUM_CHANNELS;
       if (!padVisible() && activeChannel)
         activeChannelY = y;
-        if (activeChannel && mouseButton != RIGHT) {
+        if (activeChannel && (mouseButton != RIGHT || naturalOnly)) {
           //Fill in the active channel
           pushStyle();
           for (int x = 0; x < width; x += width/NUM_NOTES) {
