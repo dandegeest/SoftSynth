@@ -70,6 +70,7 @@ ArrayList<Note> notes = new ArrayList<Note>();
 //Synestruments
 int synestrumentHeight = height - 100;
 int synestrumentWidth = width;
+final int KEYANO = 0;
 ArrayList<Synestrument> syns = new ArrayList<Synestrument>();
 
 int insName = 255;
@@ -128,6 +129,13 @@ void draw() {
   background(bgColor);
   drawBpm();
   if (synestrument != null) {
+    pushStyle();
+    stroke(black, 128);
+    strokeWeight(1);
+    dash.pattern(2, 4);
+    dash.line(synestrumentWidth / 2 + (synestrumentWidth/NUM_NOTES)/2,
+              0, synestrumentWidth / 2 + (synestrumentWidth/NUM_NOTES)/2, synestrumentHeight);
+    popStyle();
     synestrument.display();
     if (insName > 0) {
       pushStyle();
@@ -370,11 +378,13 @@ void keyPressed() {
     if (currSyn == syns.size())
       currSyn = 0;
       
+    syns.get(KEYANO).setNaturalOnly(false);
     showInstrument(syns.get(currSyn));
   }
   
   if (key == 'k') {
     currSyn = 0;
+    syns.get(KEYANO).setNaturalOnly(false);
     showInstrument(syns.get(currSyn));
   }
 

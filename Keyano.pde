@@ -1,6 +1,10 @@
 class Keyano extends Synestrument {
   Note currentNote;
-
+  int activeChannelY = 0;
+  int division;
+  boolean activeChannel = false;
+  boolean naturalOnly = false;
+    
   Keyano(float x, float y, int w, int h) {
     super(x, y, w, h);
     println("Keyano", x, y, width, height);
@@ -8,6 +12,10 @@ class Keyano extends Synestrument {
 
   String name() { return "Keyano"; }
 
+  void setNaturalOnly(boolean no) {
+    naturalOnly = no;
+  }
+  
   boolean padVisible() {
     return true;
   }
@@ -22,15 +30,37 @@ class Keyano extends Synestrument {
   }
   
   void display() {
+    division = mouseButton == RIGHT ? NUM_INSTRUMENTS : NUM_NOTES;    
+    drawGrid();   
+    //Current Cell
+    if (mouseY < height) {
+      int nn;
+      if (mouseButton == RIGHT) {
+        textSize(14);
+        nn = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
+      }
+      else
+        nn = getNote(mouseX);
+      
+      if (!naturalOnly || isNaturalNote(nn)) {
+        pushStyle();
+        noStroke();
+        fill(lerpColor(nn1Color, nnColor, map(mouseX, 0, width, 0, 1)));
+        rect(mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
+        fill(txtColor);
+        textSize(14);
+        text(""+nn, mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
+        popStyle();
+      }
+    }
+  }
+  
+  void drawGrid() {
     int channel = 0;
-    boolean activeChannel = false;
-    int activeChannelY = 0;    
     for (int y = 0; y < height; y += height/NUM_CHANNELS) {
       if (channel == NUM_CHANNELS)
         break;
       pushStyle();
-      strokeWeight(1);
-      stroke(chColor);
       activeChannel = mouseY >= y && mouseY <= y + height/NUM_CHANNELS;
       if (!padVisible() && activeChannel)
         activeChannelY = y;
@@ -41,14 +71,17 @@ class Keyano extends Synestrument {
             noStroke();
             int n = getNote(x);
             if (isNaturalNote(n))
-              fill(white, 200);
+              fill(white, 210);
             else
-              fill(black,200);
+              fill(black,naturalOnly ? 0 : 210);
             rect(x, y, width/NUM_NOTES, height/NUM_CHANNELS);
           }
         popStyle();    
       }
       
+      strokeWeight(1);
+      stroke(chColor);
+
       if (padVisible() || activeChannel) {
         line(0, y, width, y);
         noStroke();
@@ -60,11 +93,9 @@ class Keyano extends Synestrument {
         textSize(20);
         text(channelInfo.get(channel).instrumentName, 5, y + 5, 150, 20);
       }
-      channel++;
       popStyle();
+      channel++;
     }
-    
-    int division = mouseButton == RIGHT ? NUM_INSTRUMENTS : NUM_NOTES;
     
     if (padVisible() || activeChannelY > 0) {
       pushStyle();
@@ -78,27 +109,8 @@ class Keyano extends Synestrument {
       }
       popStyle();
     }
-  
-    //Current Cell
-    if (mouseY < height) {
-      pushStyle();
-      noStroke();
-      fill(lerpColor(nn1Color, nnColor, map(mouseX, 0, width, 0, 1)));
-      rect(mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
-      fill(txtColor);
-      int nn;
-      if (mouseButton == RIGHT) {
-        textSize(14);
-        nn = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
-      }
-      else
-        nn = getNote(mouseX);
-      textSize(14);
-      text(""+nn, mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
-      popStyle();
-    }
   }
-  
+
   void onLeftMousePressed() {
     //Select Note
     int ch = getChannel();

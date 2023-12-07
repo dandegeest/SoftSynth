@@ -51,8 +51,13 @@ class Note extends Sprite {
   
   void display() {
     ellipseMode(CENTER);
-    noStroke();
-    fill(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+    stroke(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+    if (delay > 200) {
+      strokeWeight(2);
+      noFill();
+    }
+    else
+      fill(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
     ellipse(position.x, position.y, delay, delay);
     if (pm != null) pm.display();
   }

@@ -207,7 +207,7 @@ class Feckof extends Synestrument {
         //println(noteNames[chord[0]],noteNames[chord[1]],noteNames[chord[2]]);
         for (int n = 0; n < noteMode; n++) {
           Note note = circle.get(chord[n]);
-          int nd = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 15, 100);
+          int nd = millis() - mousePressMillis; //constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 15, 100);
           int v = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 0, 127);
           Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave, v, nd);
           addNote(nn);

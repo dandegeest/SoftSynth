@@ -3,6 +3,7 @@ PVector GRAVITY = new PVector(0, 0.2);
 class Bawl extends Note {
   int groundCnt = 0;
   float radius;
+  ArrayList<Note> notesPlayed = new ArrayList<Note>();
   
   Bawl(Synthesizer s, float x, float y, int c, int n, int v, int d) {
     super(s, x, y, c, n, v, d);
@@ -41,22 +42,26 @@ class Bawl extends Note {
       int nn = synestrument.getNote(floor(position.x));
       if (abs(note - nn) % 12 == 0) {  //((isNaturalNote(newNote))
         radius = max(10, radius - 10);
-        stop();
-        note = nn;
-        play();
+        Note n = new Note(synth, 0, 0, channel, nn, volume, (int)delay);
+        notesPlayed.add(n);
+        n.play();
+        for (int i = 0; i < min(4, notesPlayed.size()); i ++)
+          notesPlayed.get(i).play();
       }
     }
     
     if (doneBouncing()) { 
       stop();
+      for (int i = 0; i < notesPlayed.size(); i ++)
+        notesPlayed.get(i).stop();
       delay = 0;
     }
   }
   
   void display() {
     ellipseMode(CORNER);
-    noStroke();
-    fill(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+    noFill();
+    stroke(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
     ellipse(position.x, position.y, radius, radius);;
   }
 }

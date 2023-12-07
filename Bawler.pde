@@ -14,14 +14,20 @@ class Bawler extends Synestrument {
   }
   
   void display() {
+    if (mouseButton == LEFT) {
+      syns.get(KEYANO).setNaturalOnly(true);
+      syns.get(KEYANO).display();
+    }
+    else {
     int nn = getNote(mouseX);
-    if (isNaturalNote(nn)) {
-      pushStyle();
-      noStroke();
-      fill(lerpColor(nn1Color, nnColor, map(nn, START_NOTE, END_NOTE, 0, 1)));
-      ellipseMode(CENTER);
-      ellipse(mouseX, mouseY, 16, 16);
-      popStyle();
+      if (isNaturalNote(nn)) {
+        pushStyle();
+        noStroke();
+        fill(lerpColor(nn1Color, nnColor, map(nn, START_NOTE, END_NOTE, 0, 1)));
+        ellipseMode(CENTER);
+        ellipse(mouseX, mouseY, 16, 16);
+        popStyle();
+      }
     }
   }
   
@@ -33,8 +39,8 @@ class Bawler extends Synestrument {
     int nn = getNote(mouseX);
     if (!isNaturalNote(nn))
       return;
-    int nd = ceil((millis() - mousePressMillis) * frameRate/1000);
-    int v = 100;
+    int nd = ceil((millis() - mousePressMillis) * frameRate/100);
+    int v = 80;
     Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), nn, v, nd);
     addNote(bawl);
     //recordNote(note, 1);
