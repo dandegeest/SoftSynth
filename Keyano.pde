@@ -132,7 +132,7 @@ class Keyano extends Synestrument {
   void onLeftMouseDragged() {
     int ch = getChannel();  
     int nn = getNote(mouseX);
-    int v = constrain((int)dist(pmouseX, pmouseY, mouseX, mouseY) * 2, 50, 127);
+    int v = constrain((int)dist(pmouseX, pmouseY, mouseX, mouseY) * 2, 50, 100);
     Note note = new Note(synth, mouseX, mouseY, ch, nn, v, abs(mouseX - pmouseX) * 2);
     addNote(note);
   }

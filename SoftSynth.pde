@@ -42,13 +42,12 @@ color[] synthwavePalette = {
 };
 
 int seqColor = synthwavePalette[9];
-int seqHColor = synthwavePalette[11];
+int seqHColor = synthwavePalette[5];
 int seqCColor = synthwavePalette[6];
-
 int bgColor = synthwavePalette[14];
 int txtColor = synthwavePalette[11];
 int chColor = synthwavePalette[9];
-int nnColor = synthwavePalette[5];
+int nnColor = synthwavePalette[6];
 int nn1Color = synthwavePalette[8];
 int white = synthwavePalette[10];
 int black = synthwavePalette[11];
@@ -87,6 +86,9 @@ int x;
 int y;
 
 int ss = 50;
+
+boolean drawPalette = false;
+boolean bendEnabled = false;
 
 void setup() {
   size(128 * 10, 50 * 16 + 110); // (END_NOTE - START_NOTE) * 15, 50 * NUM_CHANNELS
@@ -129,12 +131,14 @@ void draw() {
   background(bgColor);
   drawBpm();
   if (synestrument != null) {
+    
     pushStyle();
     stroke(black, 128);
     strokeWeight(1);
     dash.pattern(2, 4);
     dash.line(synestrumentWidth / 2, 0, synestrumentWidth / 2, synestrumentHeight);
     popStyle();
+    
     synestrument.display();
     if (insName > 0) {
       pushStyle();
@@ -152,10 +156,11 @@ void draw() {
       insName-=2.5;
     }
   }
+  
   drawSequencer();
   drawNotes();
   drawVis();
-  if (key == 'd')
+  if (drawPalette)
     drawPalette();
 }
 
@@ -189,6 +194,7 @@ void drawPalette() {
 } //<>//
 
 void drawNotes() {
+  pushStyle();
   ArrayList<Note> notesDone = new ArrayList<Note>();
   for (int i = 0; i < notes.size(); i++) {
     Note note = notes.get(i);
@@ -199,12 +205,13 @@ void drawNotes() {
       stopNote(note);
     }
   }
+  popStyle();
   
   notes.removeAll(notesDone);
 }
 
 void drawVis() {
-    //drawVis1();
+    drawVis1();
     currS++;
     if (currS > gridX)  {
       currS = 0;
@@ -218,17 +225,23 @@ void drawVis() {
 }
 
 void drawVis1() {
-  ellipseMode(CENTER);
-  float f = map(knock, 0, 2000, 0, 255);
-  noStroke();
-  fill(synthwavePalette[(int)random(16)], 100);
-  ellipse(currS * ss, currY, f, f);
+  if (bendEnabled) {
+    pushStyle();
+    ellipseMode(CENTER);
+    float f = map(knock, 250, 2000, 0, 200);
+    noFill();
+    stroke(synthwavePalette[(int)random(16)], 100);
+    rect(currS * ss, currY, f, f, 20);
+    popStyle();
+  }
 }
 
 void drawSequencer() {
   //Sequencer
   pushStyle();
+
   int trackHeight = (height - (synestrumentHeight + 5)) / NUM_TRACKS;
+
   noStroke();
   fill(synthwavePalette[2]);
   rect(0, synestrumentHeight + currentTrack * trackHeight, width, trackHeight);
@@ -243,13 +256,6 @@ void drawSequencer() {
       }
     }
     
-    if (recording) {
-      pushStyle();
-      ellipseMode(CENTER);
-      fill(255, 0 , 0);
-      ellipse(5, synestrumentHeight + (currentTrack * trackHeight) + trackHeight/2, 12, 12);
-      popStyle();
-    }
     
     pushStyle();
     dash.pattern(1, 5);
@@ -269,10 +275,21 @@ void drawSequencer() {
       stroke(currentStep == s ? seqHColor : seqColor);
       
     noFill();
+    strokeWeight(2);
     rect(s * width/32, synestrumentHeight, width/32-2, trackHeight * NUM_TRACKS, 2);
     fill(txtColor);
     text(""+s, s * width/32, synestrumentHeight, width/32-2, trackHeight * NUM_TRACKS);
   }
+  
+  if (recording) {
+    pushStyle();
+    ellipseMode(CENTER);
+    noStroke();
+    fill(255, 0 , 0);
+    ellipse(18, synestrumentHeight + (currentTrack * trackHeight) + trackHeight/2, 12, 12);
+    popStyle();
+  }
+  
   popStyle();
 }
 
@@ -323,6 +340,11 @@ void mouseReleased() {
 
 void mouseWheel(MouseEvent event) {
   float delta = event.getCount();
+  if (synestrument != null) {
+      if (synestrument.onMouseWheel(delta))
+        return;
+  }
+        
   bpm += delta;
   setBPM(bpm); 
   bpmDisplay = 30;
@@ -461,6 +483,9 @@ void keyPressed() {
   if (keyCode == ENTER) {
     saveFrame("frames\\softSynth#####.png");
   }
+  
+  if (key == 'd') drawPalette = !drawPalette;
+  if (key == 'b') bendEnabled = !bendEnabled;
 }
 
 void addNote(Note note) {
@@ -583,10 +608,14 @@ void serialEvent(Serial port) {
 }
 
 void onKnockCommand(float k) {
-  println("KNOCK:", k);
-  knock = map(k, 0, 800, 7500, 8500); 
-  if (synth != null && synestrument != null)
-    synth.getChannels()[synestrument.getChannel()].setPitchBend(key =='b' ? floor(knock) : 8192);
+  knock = k;
+  if (synth != null && synestrument != null) {
+    if (bendEnabled) knock = 8192 + random(-1, 1)*k;
+    else
+      knock = 8192;
+    //println("BEND:", synestrument.getChannel(), k);
+    synth.getChannels()[synestrument.getChannel()].setPitchBend(floor(knock));
+  }
 }
 
 void onControlChange(int cc, int channel, float value) {}

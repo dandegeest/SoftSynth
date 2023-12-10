@@ -15,7 +15,17 @@ class Bawl extends Note {
     radius = d;
   }
   
-  boolean doneBouncing() { return groundCnt > 200; }
+  boolean mouseIn() {
+    if (mouseX >= position.x &&
+      mouseX <= position.x + width &&
+      mouseY >= position.y - height &&
+      mouseY <= position.y + height)
+      return true;
+
+    return false;
+  }
+
+boolean doneBouncing() { return groundCnt > 200; }
   boolean onGround()
   {
     return position.y + radius >= synestrumentHeight;
@@ -42,7 +52,7 @@ class Bawl extends Note {
       int nn = synestrument.getNote(floor(position.x));
       if (abs(note - nn) % 12 == 0) {  //((isNaturalNote(newNote))
         radius = max(10, radius - 10);
-        Note n = new Note(synth, 0, 0, channel, nn, volume - notesPlayed.size(), (int)delay);
+        Note n = new Note(synth, 0, 0, channel, nn, volume, (int)delay);
         notesPlayed.add(n);
         n.play();
         for (int i = 0; i < min(4, notesPlayed.size()); i ++)
@@ -59,9 +69,18 @@ class Bawl extends Note {
   }
   
   void display() {
+    pushStyle();
     ellipseMode(CORNER);
     noFill();
     stroke(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+    strokeWeight(radius > 100 ? 5 : 2);
     ellipse(position.x, position.y, radius, radius);;
+    if (mouseIn()) {
+      fill(white);
+      textSize(24);
+      textAlign(CENTER,CENTER);
+      text(""+volume, position.x, position.y, radius, radius);
+    }
+    popStyle();
   }
 }

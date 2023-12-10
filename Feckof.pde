@@ -125,7 +125,7 @@ class Feckof extends Synestrument {
       float x = cos(angle) * radius + width/2;
       float y = sin(angle) * radius + height/2;
       
-      circle.add(new Note(synth, x, y, 0, circleOF[i], 100, 100));
+      circle.add(new Note(synth, x, y, 0, circleOF[i], -1, 100));
     }
   }
   
@@ -208,7 +208,7 @@ class Feckof extends Synestrument {
         if (cn == mouseNote)
           return;
           
-        int tm = millis() - mousePressMillis;
+        int tm = floor((millis() - mousePressMillis) * 1.5);
         int[] chord = new int[3];
         chord[0] = i % segments;
         chord[1] = (i+1) % segments;
@@ -220,7 +220,8 @@ class Feckof extends Synestrument {
           int v = constrain((int)dist(mousePressX, mousePressY, mouseX, mouseY), 0, 127);
           Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave*segments, v, nd);
           addNote(nn);
-          recordNote(nn, (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep));
+          long duration = (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep);
+          recordNote(nn, duration);
         }
         
         mouseNote = cn;

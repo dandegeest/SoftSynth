@@ -50,6 +50,7 @@ class Note extends Sprite {
   }
   
   void display() {
+    pushStyle();
     ellipseMode(CENTER);
     stroke(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
     if (delay > 200) {
@@ -60,5 +61,12 @@ class Note extends Sprite {
       fill(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
     ellipse(position.x, position.y, delay, delay);
     if (pm != null) pm.display();
+    
+    if (mouseIn() && volume != -1) {
+      fill(white);
+      textAlign(CENTER,CENTER);
+      text(""+volume, position.x - delay/2, position.y-10, delay, 20);
+    }
+    popStyle();
   }
 }

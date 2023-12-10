@@ -26,4 +26,6 @@ class Sprite {
   void onRightMousePressed() {}
   void onRightMouseReleased() {}
   void onRightMouseDragged() {}
+  
+  boolean onMouseWheel(float delta) { return false; }
 }

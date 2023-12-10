@@ -75,10 +75,9 @@ class Beztar extends Synestrument {
         int ch = getChannel();
         int nn = getNote(mouseY);//(int)bezs.position.x);
         if (isNaturalNote(nn)) {
-          println("BZ:Note", nn, ch);
           int tm = millis() - mousePressMillis;
           int nd = 100;
-          int v = 100;
+          int v = tm % 127;
           Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
           addNote(note);
           recordNote(note, (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep));

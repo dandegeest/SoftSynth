@@ -24,7 +24,7 @@ class Bawler extends Synestrument {
       syns.get(KEYANO).display();
     }
     else {
-    int nn = getNote(mouseX);
+      int nn = getNote(mouseX);
       if (isNaturalNote(nn)) {
         pushStyle();
         noStroke();
@@ -79,5 +79,24 @@ class Bawler extends Synestrument {
   }
 
   void onLeftMouseDragged() {
-  } 
+  }
+  
+  boolean onMouseWheel(float delta) {
+    for (int i = 0; i < notes.size(); i++) {
+      Bawl bawl = (Bawl)notes.get(i);
+      if (bawl != null && bawl.mouseIn()) {
+        println("SETTING VOL TO ", bawl.volume + delta);
+        bawl.volume += delta;
+        for (int n = 0; n < bawl.notesPlayed.size(); n++) {
+          Note note = bawl.notesPlayed.get(n);
+          note.stop();
+          note.volume += delta;
+          note.play();
+        }
+        return true;
+      }
+    }
+    
+    return false;
+  }
 }
