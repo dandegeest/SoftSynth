@@ -554,3 +554,39 @@ long calculateNextTick() {
   float ticksPerMicro = sequencer.getTickLength() / (float) sequenceLengthInMicros;
   return sequencer.getTickPosition() + (long)(1000000 * ticksPerMicro); // Convert microseconds to ticks
 }
+
+void serialEvent(Serial port) {
+  //Read from port
+  String inString = port.readStringUntil('\n');
+  if (inString != null) {
+    //Trim
+    inString = inString.trim();
+    //Record it
+    String[] values = new String[2];
+    values[0] = Long.toString(System.currentTimeMillis());
+    values[1] = inString;
+    // Process the command
+    String[] command = inString.split(":");
+    switch(command[0]) {
+      case "KNOCK":
+        //println(inString);
+        onKnockCommand(float(command[1]));
+        break;
+      case "EXTCMD":
+        println(inString);
+        break;
+      case "CC":
+        println(inString);
+        onControlChange(int(command[1]), int(command[2]), float(command[3]));
+    }
+  }
+}
+
+void onKnockCommand(float k) {
+  println("KNOCK:", k);
+  knock = map(k, 0, 800, 7500, 8500); 
+  if (synth != null && synestrument != null)
+    synth.getChannels()[synestrument.getChannel()].setPitchBend(key =='b' ? floor(knock) : 8192);
+}
+
+void onControlChange(int cc, int channel, float value) {}
