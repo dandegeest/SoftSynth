@@ -69,7 +69,6 @@ ArrayList<Note> notes = new ArrayList<Note>();
 //Synestruments
 int synestrumentHeight = height - 100;
 int synestrumentWidth = width;
-final int KEYANO = 0;
 ArrayList<Synestrument> syns = new ArrayList<Synestrument>();
 
 int insName = 255;
@@ -402,13 +401,11 @@ void keyPressed() {
     if (currSyn == syns.size())
       currSyn = 0;
       
-    syns.get(KEYANO).setNaturalOnly(false);
     showInstrument(syns.get(currSyn));
   }
   
   if (key == 'k') {
     currSyn = 0;
-    syns.get(KEYANO).setNaturalOnly(false);
     showInstrument(syns.get(currSyn));
   }
 

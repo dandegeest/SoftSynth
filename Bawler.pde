@@ -5,14 +5,6 @@ class Bawler extends Keyano {
   }
   
   String name() { return "BaWler"; }
-  //int getChannel() {
-  //  return constrain((int)map(mouseY, 0, height, 0, NUM_CHANNELS), 0, NUM_CHANNELS-1);
-  //}  
-  
-  //int getNote(int pos) {
-  //  int note = (int)map(pos, 0, width/NUM_NOTES * NUM_NOTES, START_NOTE, END_NOTE);
-  //  return note;
-  //}
   
   void display() {
     int m = (int)dist(pmouseX, pmouseY, mouseX, mouseY);
@@ -20,8 +12,6 @@ class Bawler extends Keyano {
       mouseMove = max(30, mouseMove);
     if (mouseButton == LEFT || mouseButton == RIGHT || mouseMove > 0) {
       mouseMove--;
-      //syns.get(KEYANO).setNaturalOnly(getChannel() == 9 ? false : true);
-      //syns.get(KEYANO).display();
       setNaturalOnly(getChannel() == 9 ? false : true);
       super.display();
     }
@@ -53,7 +43,7 @@ class Bawler extends Keyano {
     int v = 75;
     Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), nn, v, nd);
     addNote(bawl);
-    //recordNote(note, 1);
+    recordNote(bawl, 4);
   }
   
   void onRightMouseReleased() {
@@ -79,8 +69,8 @@ class Bawler extends Keyano {
       Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), chord[i], v, nd);
       v-=5;
       addNote(bawl);
+      recordNote(bawl, 4);
     }
-    //recordNote(note, 1);
   }
 
   void onLeftMouseDragged() {
