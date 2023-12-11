@@ -1,18 +1,18 @@
-class Bawler extends Synestrument {
+class Bawler extends Keyano {
   int mouseMove = 0;
   Bawler(float x, float y, int w, int h) {
     super(x, y, w, h);
   }
   
   String name() { return "BaWler"; }
-  int getChannel() {
-    return constrain((int)map(mouseY, 0, height, 0, NUM_CHANNELS), 0, NUM_CHANNELS-1);
-  }  
+  //int getChannel() {
+  //  return constrain((int)map(mouseY, 0, height, 0, NUM_CHANNELS), 0, NUM_CHANNELS-1);
+  //}  
   
-  int getNote(int pos) {
-    int note = (int)map(pos, 0, width/NUM_NOTES * NUM_NOTES, START_NOTE, END_NOTE);
-    return note;
-  }
+  //int getNote(int pos) {
+  //  int note = (int)map(pos, 0, width/NUM_NOTES * NUM_NOTES, START_NOTE, END_NOTE);
+  //  return note;
+  //}
   
   void display() {
     int m = (int)dist(pmouseX, pmouseY, mouseX, mouseY);
@@ -20,8 +20,10 @@ class Bawler extends Synestrument {
       mouseMove = max(30, mouseMove);
     if (mouseButton == LEFT || mouseButton == RIGHT || mouseMove > 0) {
       mouseMove--;
-      syns.get(KEYANO).setNaturalOnly(true);
-      syns.get(KEYANO).display();
+      //syns.get(KEYANO).setNaturalOnly(getChannel() == 9 ? false : true);
+      //syns.get(KEYANO).display();
+      setNaturalOnly(getChannel() == 9 ? false : true);
+      super.display();
     }
     else {
       int nn = getNote(mouseX);
@@ -40,9 +42,12 @@ class Bawler extends Synestrument {
     return false;
   }
   
+  void onLeftMousePressed() {
+  }
+
   void onLeftMouseReleased() {
     int nn = getNote(mouseX);
-    if (!isNaturalNote(nn))
+    if (getChannel() != 9 && !isNaturalNote(nn))
       return;
     int nd = ceil((millis() - mousePressMillis) * frameRate/100);
     int v = 75;

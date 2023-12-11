@@ -162,6 +162,8 @@ void draw() {
   drawVis();
   if (drawPalette)
     drawPalette();
+    
+  //println(frameRate);
 }
 
 void drawBpm() {
@@ -231,6 +233,7 @@ void drawVis1() {
     float f = map(knock, 250, 2000, 0, 200);
     noFill();
     stroke(synthwavePalette[(int)random(16)], 100);
+    strokeWeight(2);
     rect(currS * ss, currY, f, f, 20);
     popStyle();
   }
@@ -513,7 +516,7 @@ void setProgram(int channel, int programNumber) {
       ChannelInfo ci = channelInfo.get(channel);
       ci.instrumentIndex = programNumber;
       ci.instrumentName = synth.getLoadedInstruments()[programNumber].getName();
-      println("SetProgram:", channel, programNumber);
+      //println("SetProgram:", channel, programNumber);
     }
     catch (Exception e) {
       println("EEEEEK", e);

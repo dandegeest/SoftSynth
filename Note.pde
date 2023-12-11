@@ -5,6 +5,7 @@ class Note extends Sprite {
   int volume;
   long delay;
   long initialDelay;
+  int repeat;
   
   PopupMessage pm;
   
@@ -15,6 +16,7 @@ class Note extends Sprite {
     note = n;
     volume = v;
     initialDelay = delay = d;
+    repeat = 0;
   }
   
   boolean mouseIn() {
@@ -43,6 +45,11 @@ class Note extends Sprite {
   
   void update() {
     if (delay > 0) {
+      if (repeat > 0 && delay % repeat == 0) {
+        println("REPEAT", repeat, delay);
+        volume -= 2;
+        play();
+      }
       delay--;
     }
     

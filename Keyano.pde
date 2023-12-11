@@ -116,7 +116,7 @@ class Keyano extends Synestrument {
     int ch = getChannel();
     int nn = getNote(mouseX);
     int nd = 100;
-    int v = 100;
+    int v = 90;
     currentNote = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
     addNote(currentNote);
   }
