@@ -1,4 +1,4 @@
-# SoftSynth
+# SynestR
 
 A software synthesizer framework for synesthetic insrument exploration and visualization.
 
