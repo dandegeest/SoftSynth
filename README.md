@@ -8,8 +8,8 @@ A software synthesizer framework for synesthetic insrument exploration and visua
 ![image](frames/softSynth02598.png)
 
 # Included Instruments
-- Keyno - 16 channel keyboard, per channel sample setting, click to play note or drag for fun effects
-- Beztar - 16 channel strummable piano, plays natural notes only
-- FeckCOF - Circle of Fifths experiement
-- Bawler - Generative bouncy ball drones, notes, and beats
+- Keyano - 16 channel keyboard, per channel path setting, click to play note or drag for fun effects
+- Beztar - 16 channel strummable piano, plays natural notes only, per channel patch
+- FeckCOF - Circle of Fifths experiement, play chords or single notes on the COF wheel, per channel patch
+- Bawler - Generative bouncy ball drones, notes, and beats based on Keyano
  
