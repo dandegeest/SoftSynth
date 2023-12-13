@@ -76,9 +76,9 @@ class Beztar extends Synestrument {
         int nn = getNote(mouseY);//(int)bezs.position.x);
         if (isNaturalNote(nn)) {
           int tm = millis() - mousePressMillis;
-          int nd = 100;
-          int v = tm % 127;
-          Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
+          int nd = (int)dist(pmouseX, pmouseY, mouseX, mouseY);
+          int v = constrain(nd * 2, 50, 100);
+          Note note = new Note(synth, mouseX, mouseY, ch, nn, v, v);
           addNote(note);
           recordNote(note, (long)constrain(tm/(long)calculateMillisecondsPerTick(), 1, 32 - currentStep));
         }

@@ -58,6 +58,7 @@ boolean doneBouncing() { return groundCnt > 200; }
         for (int i = 0; i < min(4, notesPlayed.size()); i ++)
           notesPlayed.get(i).play();
       }
+      else play();
     }
     
     if (doneBouncing()) { 

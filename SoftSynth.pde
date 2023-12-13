@@ -88,6 +88,7 @@ int ss = 50;
 
 boolean drawPalette = false;
 boolean bendEnabled = false;
+int pitchBendChannel = 0;
 
 void setup() {
   size(128 * 10, 50 * 16 + 110); // (END_NOTE - START_NOTE) * 15, 50 * NUM_CHANNELS
@@ -226,15 +227,14 @@ void drawVis() {
 }
 
 void drawVis1() {
+  //if (frameCount % 5 == 0) {    
+  //  knock = map(mouseX, 0, width, 500, 2000);
+  //  onKnockCommand(knock);
+  //}
+  
   if (bendEnabled) {
-    pushStyle();
-    ellipseMode(CENTER);
-    float f = map(knock, 250, 2000, 0, 200);
-    noFill();
-    stroke(synthwavePalette[(int)random(16)], 100);
-    strokeWeight(2);
-    rect(currS * ss, currY, f, f, 20);
-    popStyle();
+    float f = map(knock, 8192-500, 8192+500, 0, ss*2);
+    addNote(new Note(synth, currS * ss, currY, 0, 0, 0, (int)f));
   }
 }
 
@@ -485,7 +485,24 @@ void keyPressed() {
   }
   
   if (key == 'd') drawPalette = !drawPalette;
-  if (key == 'b') bendEnabled = !bendEnabled;
+  if (key == 'b') {
+    bendEnabled = !bendEnabled;
+    if (!bendEnabled) {
+      for (int c = 0; c < NUM_CHANNELS; c++)
+        synth.getChannels()[c].setPitchBend(8192);
+    }
+  }
+}
+
+void keyTyped() {
+  if (key == '0') {
+    for (int n = 0; n < notes.size(); n++) {
+      Note nn = notes.get(n);
+      nn.stop();
+    }
+    
+    notes.clear();
+  }
 }
 
 void addNote(Note note) {
@@ -613,8 +630,12 @@ void onKnockCommand(float k) {
     if (bendEnabled) knock = 8192 + random(-1, 1)*k;
     else
       knock = 8192;
-    //println("BEND:", synestrument.getChannel(), k);
-    synth.getChannels()[synestrument.getChannel()].setPitchBend(floor(knock));
+    //println("BEND:", synestrument.getChannel(), knock);
+    if (pitchBendChannel != synestrument.getChannel())
+      synth.getChannels()[pitchBendChannel].setPitchBend(8192);
+
+    pitchBendChannel = synestrument.getChannel();
+    synth.getChannels()[pitchBendChannel].setPitchBend(floor(knock));
   }
 }
 
