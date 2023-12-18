@@ -1,11 +1,15 @@
+final int OCTAVE = 12;
+
 class Note extends Sprite {
   Synthesizer synth;
   int channel;
+  int ogNote;
   int note;
   int volume;
   long delay;
   long initialDelay;
   int repeat;
+  int decay = -OCTAVE;
   
   PopupMessage pm;
   
@@ -13,7 +17,7 @@ class Note extends Sprite {
     super(x, y, d, d);
     synth = s;
     channel = c;
-    note = n;
+    ogNote = note = n;
     volume = v;
     initialDelay = delay = d;
     repeat = 0;
@@ -46,8 +50,12 @@ class Note extends Sprite {
   void update() {
     if (delay > 0) {
       if (repeat > 0 && delay % repeat == 0) {
-        println("REPEAT", repeat, delay);
-        volume -= 2;
+        stop();
+        note += decay;
+        if (note == ogNote - OCTAVE || note == ogNote + OCTAVE)
+          decay = -(decay);         
+        
+        volume -= 3;
         play();
       }
       delay--;

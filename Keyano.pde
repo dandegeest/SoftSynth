@@ -7,7 +7,6 @@ class Keyano extends Synestrument {
     
   Keyano(float x, float y, int w, int h) {
     super(x, y, w, h);
-    println("Keyano", x, y, width, height);
   }
 
   String name() { return "Keyano"; }

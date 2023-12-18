@@ -132,6 +132,7 @@ void draw() {
   drawBpm();
   if (synestrument != null) {
     
+    // Middle C Guide Line
     pushStyle();
     stroke(black, 128);
     strokeWeight(1);
@@ -139,22 +140,9 @@ void draw() {
     dash.line(synestrumentWidth / 2, 0, synestrumentWidth / 2, synestrumentHeight);
     popStyle();
     
+    //Draw the current Synestrument
     synestrument.display();
-    if (insName > 0) {
-      pushStyle();
-      textSize(24);
-      stroke(chColor, insName);
-      strokeWeight(4);
-      noFill();
-      rect(width/2 - 150, synestrumentHeight/2 - 35, 300, 70, 12);
-      noStroke();
-      fill(white, insName);
-      textAlign(CENTER, CENTER);
-      textSize(64);
-      text(synestrument.name(),0, 0, width, synestrumentHeight);
-      popStyle();
-      insName-=2.5;
-    }
+    drawSynName();
   }
   
   drawSequencer();
@@ -162,8 +150,34 @@ void draw() {
   drawVis();
   if (drawPalette)
     drawPalette();
-    
-  //println(frameRate);
+ 
+  if (key == 'f') {
+    pushStyle();
+    textAlign(CENTER, CENTER);
+    fill(txtColor);
+    text(""+frameRate, 0, 0, width, height);
+    popStyle();
+  }
+}
+
+void drawSynName() {
+  pushStyle();
+  if (insName > 0) {
+    pushStyle();
+    textSize(24);
+    stroke(chColor, insName);
+    strokeWeight(4);
+    noFill();
+    rect(width/2 - 150, synestrumentHeight/2 - 35, 300, 70, 12);
+    noStroke();
+    fill(white, insName);
+    textAlign(CENTER, CENTER);
+    textSize(64);
+    text(synestrument.name(),0, 0, width, synestrumentHeight);
+    popStyle();
+    insName-=2.5;
+  }
+  popStyle();
 }
 
 void drawBpm() {
@@ -213,6 +227,7 @@ void drawNotes() {
 }
 
 void drawVis() {
+  if (bendEnabled) {
     drawVis1();
     currS++;
     if (currS > gridX)  {
@@ -222,11 +237,12 @@ void drawVis() {
     
     if (currY > height) {
       currY = 0;
-      background(0);
-    }    
+    } 
+  }
 }
 
 void drawVis1() {
+  //Simulate serial event
   //if (frameCount % 5 == 0) {    
   //  knock = map(mouseX, 0, width, 500, 2000);
   //  onKnockCommand(knock);
@@ -234,12 +250,12 @@ void drawVis1() {
   
   if (bendEnabled) {
     float f = map(knock, 8192-500, 8192+500, 0, ss*2);
-    addNote(new Note(synth, currS * ss, currY, 0, 0, 0, (int)f));
+    int n = synestrument.getNote(currY);
+    addNote(new Note(synth, currS * ss, currY, 0, n, 0, (int)f));
   }
 }
 
 void drawSequencer() {
-  //Sequencer
   pushStyle();
 
   int trackHeight = (height - (synestrumentHeight + 5)) / NUM_TRACKS;
@@ -390,6 +406,7 @@ void showInstrument(Synestrument si) {
   synestrument = si;
   insName = 255;
 }
+
 void keyPressed() {
   
   if (synestrument != null)

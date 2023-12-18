@@ -166,6 +166,7 @@ class Feckof extends Synestrument {
          channel = (int)map(mouseX, 200, width-200, 0, NUM_CHANNELS);
          octaveDisplay = 255;
       }
+      return;
     }
 
     for (int i = 0; i < circle.size(); i++) {
@@ -178,8 +179,7 @@ class Feckof extends Synestrument {
         //println(noteNames[chord[0]],noteNames[chord[1]],noteNames[chord[2]]);
         for (int n = 0; n < noteMode; n++) {
           Note note = circle.get(chord[n]);
-          int nd = floor(millis() - mousePressMillis);///(1000/30);
-          println(nd);
+          int nd = floor((millis() - mousePressMillis) * 1.5);
           int cd = (int)dist(mouseX, mouseY, cn.position.x, cn.position.y);
           int v = (int)map(cd, 0, 50, 100, 50);
           Note nn = new Note(synth, mouseX, mouseY, getChannel(), note.note + octave*segments, v, nd);
