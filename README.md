@@ -50,5 +50,16 @@ For this project I chose to develop a framework for creating interesting ambient
 
 To this end I have created SynestR, a software synthesizer based framework for synesthetic instrument creation and exploration in [Procssing](http://processing.org) and the [Java Sound Api](https://www.oracle.com/java/technologies/java-sound-api.html)  It includes four example Synestruments that each provide different touch based methods for playing notes using the 16 channels and 128 samples provided by the [Gervill](https://blog.djy.io/making-midi-sound-awesome-in-your-jvm/) software synthesizer included in the JDK. When notes are played by a given Synestrument different colored circles of different sizes are drawn on the screen, bounce, move, and evolve - a direct inspiration from Bloom.
 
+# Extend
+- Add a new tab and name it for the new Synestrument you are creating
+- ```class Bonger extends Synestrument {}```
+- Override `name()` and give your creation a name
+- ``` String name() { return "Bonger"; } ```
+- Override ~display()~ and give your Synestrument a face
+- Override the various mouse functions and give it a feel
+- Add your new Synestrument to the available Syns
+- ~syns.add(new Bonger(0, 0, synestrumentWidth, synestrumentHeight));~~~
+- See [Beztar](/beztar.pde) for an example and how to add and record notes
+
 
 
