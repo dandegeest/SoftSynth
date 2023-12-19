@@ -48,7 +48,7 @@ Few details were released on the algorithms used to power Bloom.  After touching
 
 For this project I chose to develop a framework for creating interesting ambient mixes like Bloom but also wanted to take it further in the actual construction of a "Synestrument".  I wanted to create something where not only could the user make ambient sound mixes but also, with minimal programming knowledge, experiement with creating their own touch (click) based instrument for generating the notes and generative parameters.  I wanted to create something that was fun, visually interesting, but that also encouranged experiementation that could result in spontaneous magic for the eyes, ears, and heart.
 
-To this end I have created SynestR, a software synthesizer based framework for synesthetic instrument creation and exploration in [Procssing](http://processing.org) and the [Java Sound Api](https://www.oracle.com/java/technologies/java-sound-api.html)  It includes four example Synestruments that each provide different touch based methods for playing notes using the 16 channels and 128 samples provided by the [Gervill](https://blog.djy.io/making-midi-sound-awesome-in-your-jvm/) software synthesizer included in the JDK. When notes are played by a given Synestrument different colored circles of different sizes are drawn on the screen, bounce, move, and evolve - a direct inspiration from Bloom.
+To this end I have created SynestR, a software synthesizer based framework for synesthetic instrument creation and exploration in [Processing](http://processing.org) and the [Java Sound Api](https://www.oracle.com/java/technologies/java-sound-api.html)  It includes four example Synestruments that each provide different touch based methods for playing notes using the 16 channels and 128 samples provided by the [Gervill](https://blog.djy.io/making-midi-sound-awesome-in-your-jvm/) software synthesizer included in the JDK. When notes are played by a given Synestrument different colored circles of different sizes are drawn on the screen, bounce, move, and evolve - a direct inspiration from Bloom.
 
 # Extend
 - Add a new tab and name it for the new Synestrument you are creating
@@ -59,7 +59,7 @@ To this end I have created SynestR, a software synthesizer based framework for s
 - Override the various mouse functions and give it a feel and interaction
 - Add your new Synestrument to the available Syns
 - `syns.add(new Bonger(0, 0, synestrumentWidth, synestrumentHeight));`
-- See [Beztar](/beztar.pde) for an example and how to add and record notes
+- See [Beztar](/Beztar.pde) for an example and how to add and record notes
 
 
 
