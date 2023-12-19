@@ -1,8 +1,8 @@
 # SynestR
 
-A software synthesizer framework for **SYNES**thetic ins**TR**ument exploration and visualization.
+A software synthesizer framework for **SYNES**thetic ins**TR**ument exploration and visualization in [Processing](http://processing.org)
 
-- Provides MIDI note playback and 32 step sequencing using the Java Sound API and Gervil 16 channel software synthesizer
+- Provides MIDI note playback and 32 step sequencing using the Java Sound API and Gervill 16 channel software synthesizer
 - Synestrument base class provides note, mouse, and keyboard handling to allow quick prototypes of new Synestruments
 - Provides serial port reading for hooking up your Arduino or Pico ideas - see my [BounceHouse](https://github.com/dandegeest/BounceHouse) MicroPython project as an example
 
