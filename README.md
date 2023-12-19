@@ -28,7 +28,7 @@ A software synthesizer framework for **SYNES**thetic ins**TR**ument exploration 
 >
 > Create an 'audiovisual instrument' that allows a user or performer to produce tightly responsive and coupled sound and visuals (video, Processing window, etc.). Your software should make possible the creation of both dynamic imagery and noise/sound/music, simultaneously, in real-time.
 >
->The challenge is to create an open-ended system where the audio and visual modalities are equally expressive. Its results should be inexhaustible, deeply variable, and dependent on the performer's /user's choices. The basic principles of the instrument's operation should be easy to learn, while at the same time should encourage or provoke sophisticated expression. 
+>The challenge is to **create an open-ended system where the audio and visual modalities are equally expressive**. Its **results should be inexhaustible, deeply variable, and dependent on the performer's /user's choices**. The basic principles of the instrument's operation should be easy to learn, while at the same time should encourage or provoke sophisticated expression. 
 >
 > Use the tools learned this semester to create an instrument that receives input from the performer or user. Imagine how this will be input into the system or application: will the performer use the keyboard, the mouse, a multi-touch trackpad, a webcam, push buttons, or some other sensor? Select and construct your instrument's physical interface with care and consider the expressive affordances. Categorize the data that is input and output: are they continuous values, changes in electrical circuitry, MIDI, OSC, or changes to logical states.
 >
