@@ -55,10 +55,10 @@ To this end I have created SynestR, a software synthesizer based framework for s
 - ```class Bonger extends Synestrument {}```
 - Override `name()` and give your creation a name
 - ``` String name() { return "Bonger"; } ```
-- Override ~display()~ and give your Synestrument a face
-- Override the various mouse functions and give it a feel
+- Override `display()` and give your Synestrument a face
+- Override the various mouse functions and give it a feel and interaction
 - Add your new Synestrument to the available Syns
-- ~syns.add(new Bonger(0, 0, synestrumentWidth, synestrumentHeight));~~~
+- `syns.add(new Bonger(0, 0, synestrumentWidth, synestrumentHeight));`
 - See [Beztar](/beztar.pde) for an example and how to add and record notes
 
 
