@@ -17,7 +17,12 @@ class Sprite {
   boolean onKeyPressed() { return false; }
   
   //Mouse
-  boolean mouseIn() { return false;}
+  boolean mouseIn() { 
+    return (mouseX >= position.x && mouseX <= position.x + width &&
+      mouseY >= position.y && mouseY <= position.y + height);
+  }
+  
+  void onMouseMoved() {}
   
   void onLeftMousePressed() {}
   void onLeftMouseReleased() {}

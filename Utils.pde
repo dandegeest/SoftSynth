@@ -1,4 +1,48 @@
+
+
+String device = "Gervill";
+//String device = "Microsoft GS Wavetable Synth";
+//String device = "MiDDi";
+//String device = "Circuit Tracks";
+
 void initMidi() {
+  // Get information about available MIDI devices
+  MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
+  printArray(infos);
+  // Find loopMIDI device
+  for (MidiDevice.Info info : infos) {
+    if (info.getName().equals(device)) {
+      try {
+        // Get the midi device
+        midiDevice = MidiSystem.getMidiDevice(info);
+        midiDevice.open();
+        receiver = midiDevice.getReceiver();
+        if (midiDevice instanceof Synthesizer) {
+          synth = (Synthesizer) midiDevice;
+          println("Using Synthesizer", info);
+        }
+      } 
+      catch (MidiUnavailableException e) {
+        e.printStackTrace();
+      }
+      break;
+    }
+  }
+  
+  if (midiDevice == null) {
+    println(device, "Midi device not found.");
+  }
+  else println("Using midi device", device, receiver);
+
+  try {
+    sequencer = MidiSystem.getSequencer();
+    sequencer.open();
+  } catch (MidiUnavailableException e) {
+    e.printStackTrace();
+  }  
+}
+
+void initMidi2() {
   MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
   
   printArray(infos);

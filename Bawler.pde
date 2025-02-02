@@ -43,7 +43,7 @@ class Bawler extends Keyano {
     int v = 75;
     Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), nn, v, nd);
     addNote(bawl);
-    recordNote(bawl, 4);
+    recordNote(bawl, nd);
   }
   
   void onRightMouseReleased() {
@@ -62,9 +62,8 @@ class Bawler extends Keyano {
       //Make a chord
       chord[0] = nn;
       chord[1] = circleOF[(cof+1) % 12];
-      chord[2] = circleOF[(cof+4) % 12];   
-      //println("COF:", cof, chord);
-     }
+      chord[2] = circleOF[(cof+4) % 12];  
+    }
     for (int i = 0; i < chord.length; i++) {
       Bawl bawl = new Bawl(synth, mouseX, mouseY, getChannel(), chord[i], v, nd);
       v-=5;

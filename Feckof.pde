@@ -25,7 +25,7 @@ class Feckof extends Synestrument {
   
   Feckof(float x, float y, int w, int h) {
     super(x, y, w, h);
-    radius = (h - 350)/2;
+    radius = (h - 300)/2;
     initCof();
   }
   
@@ -49,7 +49,7 @@ class Feckof extends Synestrument {
   void display() {    
     pushStyle();
     noFill();
-    stroke(chColor, 220);
+    stroke(activePalette[15], 220);
     strokeWeight(0);
     for (int i = 0; i < width; i+=5) {
       for (int j = 0; j < height; j+=5) {
@@ -60,13 +60,6 @@ class Feckof extends Synestrument {
 
     for (int i = 0; i < circle.size(); i++) {
       Note n = circle.get(i);
-      //n.update();
-      if (n.delay > 110)
-        dir = -1;
-      else if (n.delay < 90)
-        dir = 1;
-      //n.delay += dir;
-      
       n.display();
       pushStyle();
       fill(white, 128);
@@ -80,7 +73,7 @@ class Feckof extends Synestrument {
       //Octave bars
       pushStyle();
       stroke(0);
-      fill(synthwavePalette[i], 255);
+      fill(activePalette[8+i], 255);
       noStroke();
       rect(0, i * height/6, 200, height/6, 12);
       rect(width - 200, i * height/6, 200, height/6, 12);     
@@ -93,7 +86,7 @@ class Feckof extends Synestrument {
       pushStyle();
       strokeWeight(0);
       stroke(chColor);
-      fill(lerpColor(synthwavePalette[5],synthwavePalette[15], map(i, 0, NUM_CHANNELS, 0, 1)));
+      fill(lerpColor(activePalette[5],activePalette[15], map(i, 0, NUM_CHANNELS, 0, 1)));
       rect(200 + i * cw, 0, cw, 40, 12);
       if (i == getChannel()) {
         textSize(34);
@@ -119,7 +112,7 @@ class Feckof extends Synestrument {
 
       for (int i = 0; i < 6; i++) {
         if (i <= map(octave, -20, 30, 0, 5))
-          fill(synthwavePalette[1], octaveDisplay);
+          fill(activePalette[1], octaveDisplay);
         else
           fill(white, octaveDisplay);
         ellipse(width/2 + i * 20 - 60, height/2 - 8, 16, 16);

@@ -4,6 +4,7 @@ class Keyano extends Synestrument {
   int division;
   boolean activeChannel = false;
   boolean naturalOnly = false;
+  String instrumentScrollName = "";
     
   Keyano(float x, float y, int w, int h) {
     super(x, y, w, h);
@@ -84,13 +85,15 @@ class Keyano extends Synestrument {
       if (padVisible() || activeChannel) {
         line(0, y, width, y);
         noStroke();
-        fill(synthwavePalette[2]);
+        fill(activePalette[2]);
         rect(2, y + 2, 150, 20, 6);
         //Instrument Name
         fill(txtColor);
         textAlign(LEFT);
         textSize(20);
-        text(channelInfo.get(channel).instrumentName, 5, y + 5, 150, 20);
+        text((instrumentScrollName.length() > 0 && activeChannel) ?
+          instrumentScrollName : 
+          channelInfo.get(channel).instrumentName, 5, y + 5, 150, 20);
       }
       popStyle();
       channel++;
@@ -136,6 +139,11 @@ class Keyano extends Synestrument {
     addNote(note);
   }
   
+  void onRightMouseDragged() {
+    int program = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
+    instrumentScrollName = synth.getLoadedInstruments()[program].getName();
+  }
+
   void onRightMouseReleased() {
     int program = (int)map(mouseX, 0, width/NUM_INSTRUMENTS * NUM_INSTRUMENTS, 0, NUM_INSTRUMENTS);
     int ch = getChannel();
@@ -145,5 +153,6 @@ class Keyano extends Synestrument {
     Note note = new Note(synth, mouseX, mouseY, ch, nn, v, nd);
     setProgram(ch, program);
     addNote(note);
+    instrumentScrollName = "";
   }
 }

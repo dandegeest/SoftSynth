@@ -7,6 +7,8 @@ MidiDevice midiDevice;
 
 //Synthesizer
 Synthesizer synth;
+Receiver receiver;
+
 final int NUM_CHANNELS = 16;
 final int NUM_INSTRUMENTS = 128;
 ArrayList<ChannelInfo> channelInfo = new ArrayList<ChannelInfo>();
@@ -34,6 +36,25 @@ DashedLines dash;
 float dashDist = 0;
 
 //Palette
+color[] darkThemePalette = {
+  #1B1B1E,  // Primary Background (Near Black)
+  #222831,  // Dark Charcoal
+  #2C3333,  // Deep Gray-Green
+  #323F4B,  // Slate Gray
+  #3B4252,  // Nord Dark Blue-Gray
+  #4C566A,  // Secondary Text Gray
+  #5C677D,  // Muted Steel
+  #6D7078,  // Soft Graphite
+  #1F2933,  // Midnight Blue-Black
+  #283845,  // Cool Navy
+  #A3BE8C,  // Soft Green (Success)
+  #D08770,  // Warm Orange (Warning)
+  #BF616A,  // Soft Red (Error)
+  #81A1C1,  // Muted Blue (Selection)
+  #EBCB8B,  // Gold Accent (Highlight)
+  #ECEFF4   // High Contrast Text (Light Gray)
+};
+
 color[] synthwavePalette = {
   #FF6E67, #FFBB67, #FFEB67, #A6FF67,
   #67FFC1, #67D4FF, #6798FF, #C167FF,
@@ -41,16 +62,18 @@ color[] synthwavePalette = {
   #FF4343, #FF9143, #FFD143, #67FF43
 };
 
-int seqColor = synthwavePalette[9];
-int seqHColor = synthwavePalette[5];
-int seqCColor = synthwavePalette[6];
-int bgColor = synthwavePalette[14];
-int txtColor = synthwavePalette[11];
-int chColor = synthwavePalette[9];
-int nnColor = synthwavePalette[6];
-int nn1Color = synthwavePalette[8];
-int white = synthwavePalette[10];
-int black = synthwavePalette[11];
+color[] activePalette = darkThemePalette;
+
+int seqColor = activePalette[3];
+int seqHColor = activePalette[10];
+int seqCColor = activePalette[11];
+int bgColor = activePalette[0];
+int txtColor = activePalette[15];
+int chColor = activePalette[9];
+int nnColor = activePalette[6];
+int nn1Color = activePalette[8];
+int white = #FFFFFF;//activePalette[10];
+int black = #000000; //activePalette[11];
 
 //Interaction
 int mousePressMillis;
@@ -71,10 +94,11 @@ int synestrumentHeight = height - 100;
 int synestrumentWidth = width;
 ArrayList<Synestrument> syns = new ArrayList<Synestrument>();
 
+String insMessage;
 int insName = 255;
 
 Synestrument synestrument;
-int currSyn = 0;
+int currSyn = 4;
 
 int currS = 0;
 int currY = 0;
@@ -97,7 +121,7 @@ void setup() {
   initSerial();
   setBPM(bpm);
   createMidiSequence();
-  
+
   //Create the synestruments
   synestrumentHeight = 50 * NUM_CHANNELS;  
   synestrumentWidth = width;  
@@ -105,9 +129,10 @@ void setup() {
   syns.add(new Beztar(0, 0, synestrumentWidth, synestrumentHeight));
   syns.add(new Feckof(0, 0, synestrumentWidth, synestrumentHeight));
   syns.add(new Bawler(0, 0, synestrumentWidth, synestrumentHeight));
+  syns.add(new Pixelah(0, 0, synestrumentWidth, synestrumentHeight));
   
   //Set current synestrument
-  synestrument = syns.get(currSyn);
+  showInstrument(syns.get(currSyn));
 
   dash = new DashedLines(this);
   
@@ -124,7 +149,7 @@ void setup() {
   gridX = width / ss;
   gridY = synestrumentHeight / ss;
   x = width/2;
-  y = synestrumentHeight/2;
+  y = synestrumentHeight/2;  
 }
 
 void draw() {
@@ -168,12 +193,12 @@ void drawSynName() {
     stroke(chColor, insName);
     strokeWeight(4);
     noFill();
-    rect(width/2 - 150, synestrumentHeight/2 - 35, 300, 70, 12);
+    rect(width/2 - 300, synestrumentHeight/2 - 35, 600, 70, 12);
     noStroke();
     fill(white, insName);
     textAlign(CENTER, CENTER);
     textSize(64);
-    text(synestrument.name(),0, 0, width, synestrumentHeight);
+    text(insMessage, 0, 0, width, synestrumentHeight);
     popStyle();
     insName-=2.5;
   }
@@ -195,16 +220,16 @@ void drawBpm() {
 void drawPalette() {
   pushStyle();
   textSize(12);
-  int w = width/synthwavePalette.length;
-  for (int i = 0; i < synthwavePalette.length; i++) {
+  int w = width/activePalette.length;
+  for (int i = 0; i < activePalette.length; i++) {
     noStroke();
-    fill(synthwavePalette[i]);
+    fill(activePalette[i]);
     rect(i * w, 10, w, 50);
-    if (synthwavePalette[i] == color(0))
+    if (activePalette[i] == color(0))
       fill(255);
     else
       fill(0);
-    text(hex(synthwavePalette[i]).substring(2), i * w, 10, w, 50);
+    text(hex(activePalette[i]).substring(2), i * w, 10, w, 50);
   }
   popStyle();
 } //<>//
@@ -261,7 +286,7 @@ void drawSequencer() {
   int trackHeight = (height - (synestrumentHeight + 5)) / NUM_TRACKS;
 
   noStroke();
-  fill(synthwavePalette[2]);
+  fill(activePalette[2]);
   rect(0, synestrumentHeight + currentTrack * trackHeight, width, trackHeight);
   strokeWeight(1);
   for (int s = 0; s < 32; s++) {
@@ -274,14 +299,12 @@ void drawSequencer() {
       }
     }
     
-    
     pushStyle();
     dash.pattern(1, 5);
     strokeWeight(1);
     stroke(chColor);
     dash.line(0, synestrumentHeight + currentTrack * trackHeight, width, synestrumentHeight + currentTrack * trackHeight);
     dash.line(0, synestrumentHeight + (currentTrack + 1) * trackHeight, width, synestrumentHeight + (currentTrack + 1) * trackHeight);
-    popStyle();  
 
     if (sequencer.isRunning()) {
       if (sequencer.getTickPosition() == s)
@@ -293,10 +316,15 @@ void drawSequencer() {
       stroke(currentStep == s ? seqHColor : seqColor);
       
     noFill();
-    strokeWeight(2);
-    rect(s * width/32, synestrumentHeight, width/32-2, trackHeight * NUM_TRACKS, 2);
-    fill(txtColor);
-    text(""+s, s * width/32, synestrumentHeight, width/32-2, trackHeight * NUM_TRACKS);
+    strokeWeight(4);
+    rect(s * width/32, synestrumentHeight, width/32-4, trackHeight * NUM_TRACKS, 2);
+    if (mouseY > synestrumentHeight) {
+      fill(txtColor);
+      textSize(20);
+      textAlign(CENTER);
+      text(""+s, s * width/32, height - 30, width/32-4, trackHeight * NUM_TRACKS);
+    }
+    popStyle();  
   }
   
   if (recording) {
@@ -311,11 +339,23 @@ void drawSequencer() {
   popStyle();
 }
 
+void mouseMoved() {
+  if (synestrument != null)
+    synestrument.onMouseMoved();
+}
+
 void mouseDragged() {
   if (mouseY < synestrumentHeight) {    
     if (mouseButton == LEFT) {
       if (synestrument != null)
         synestrument.onLeftMouseDragged();
+      return;
+    }
+    
+    if (mouseButton == RIGHT) {
+      if (synestrument != null)
+        synestrument.onRightMouseDragged();
+      return;
     }
   }
 }
@@ -405,6 +445,7 @@ void recordNote(Note note, long noteDuration) {
 void showInstrument(Synestrument si) {
   synestrument = si;
   insName = 255;
+  insMessage = synestrument.name();
 }
 
 void keyPressed() {
@@ -445,6 +486,8 @@ void keyPressed() {
     if (i < 0) i = 127;
     setProgram(ch, i);
     Note note = new Note(synth, width/2, ch * synestrumentHeight/NUM_CHANNELS + synestrumentHeight/NUM_CHANNELS/2, ch, 60, 100, 30); 
+    insMessage = ci.instrumentName;
+    insName = 255;
     addNote(note);
   }
   
@@ -472,7 +515,8 @@ void keyPressed() {
     if (i > 127) i = 0;
     setProgram(ch, i);
     Note note = new Note(synth, width/2, ch * synestrumentHeight/NUM_CHANNELS + synestrumentHeight/NUM_CHANNELS/2, ch, 60, 100, 30);
-    //note.setMessage(ci.instrumentName);  
+    insMessage = ci.instrumentName;
+    insName = 255;
     addNote(note);
   }
   

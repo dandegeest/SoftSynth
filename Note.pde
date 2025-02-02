@@ -10,6 +10,7 @@ class Note extends Sprite {
   long initialDelay;
   int repeat;
   int decay = -OCTAVE;
+  color noteColor = 0;
   
   PopupMessage pm;
   
@@ -39,12 +40,37 @@ class Note extends Sprite {
   }
   
   void play() {
-    //println("NoteOn:CH:"+channel+" N:"+note+" V:"+volume);
-    synth.getChannels()[channel].noteOn(note, volume);
+    if (synth != null) {
+      //println("NoteOn:CH:"+channel+" N:"+note+" V:"+volume);
+      synth.getChannels()[channel].noteOn(note, volume);
+    }
+    if (receiver != null) {
+      try {
+        ShortMessage noteOnMessage = new ShortMessage();
+        noteOnMessage.setMessage(ShortMessage.NOTE_ON, channel, note, volume);
+        receiver.send(noteOnMessage, -1);
+        //println("NOTE ON", note, channel, device);
+      } 
+      catch (InvalidMidiDataException e) {
+        e.printStackTrace();
+      }
+    }
   }
   
   void stop() {
-    synth.getChannels()[channel].noteOff(note);
+    if (synth != null) {
+      synth.getChannels()[channel].noteOff(note);
+    }
+    if (receiver != null) {
+      try {
+        ShortMessage noteOffMessage = new ShortMessage();
+        noteOffMessage.setMessage(ShortMessage.NOTE_OFF, channel, note, 0);
+        receiver.send(noteOffMessage, -1);
+      } 
+      catch (InvalidMidiDataException e) {
+        e.printStackTrace();
+      }
+    }
   }
   
   void update() {
@@ -67,13 +93,18 @@ class Note extends Sprite {
   void display() {
     pushStyle();
     ellipseMode(CENTER);
-    stroke(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+    color c = noteColor;
+    if (noteColor == 0)
+      c = lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1));
+    
+    stroke(c, map(delay, 0, initialDelay, 0, 255));
     if (delay > 200) {
       strokeWeight(2);
       noFill();
     }
     else
-      fill(lerpColor(nn1Color, nnColor, map(note, START_NOTE, END_NOTE, 0, 1)), map(delay, 0, initialDelay, 0, 255));
+      fill(c, map(delay, 0, initialDelay, 0, 255));
+      
     ellipse(position.x, position.y, delay, delay);
     if (pm != null) pm.display();
     

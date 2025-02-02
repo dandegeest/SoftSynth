@@ -22,8 +22,7 @@ class BeztarString extends Sprite
   }
   
   boolean mouseIn() {
-    int nn = synestrument.getNote(mouseY);//(int)bezs.position.x);
-        //if (isNaturalNote(nn)) {
+    int nn = synestrument.getNote(mouseY);
     return abs(position.x - mouseX) < MOUSEIN_SIZE && isNaturalNote(nn);
   }
 
