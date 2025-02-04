@@ -8,7 +8,10 @@ class Button extends Sprite {
   void display() {
     pushStyle();
     fill(btnColor);
-    if (btnImg != null) image(btnImg, position.x+2, position.y+2, width-4, height-4);
+    if (btnImg != null) {
+      image(btnImg, position.x+2, position.y+2, width-4, height-4);
+      noFill();
+    }
     if (mouseIn()) {
       strokeWeight(2);
       stroke(activePalette[15]);

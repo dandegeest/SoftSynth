@@ -1,6 +1,5 @@
 import processing.video.*;
 import ddf.minim.analysis.*;
-import ddf.minim.*;
 
 enum PixelMode {
   RED,
@@ -29,7 +28,6 @@ class Pixelah extends Synestrument {
   Button playModeBtn;
   Button imgButton;
   
-  Minim minim;
   FFT fft;
   float[] signal;
   int band = -1;
@@ -59,7 +57,7 @@ class Pixelah extends Synestrument {
   String name() { return "Pixelah"; }
 
   int getChannel() {
-    int ch = int(map(mouseY, 0, sourceImg.height, 0, NUM_CHANNELS));
+    int ch = int(map(mouseY, 0, sourceImg.height, 0, NUM_CHANNELS-1));
     return ch;
   }
   
@@ -85,8 +83,15 @@ class Pixelah extends Synestrument {
     pushStyle();
     image(sourceImg, 0, 0);
 
-    if (fft != null && mouseX < 1024) {
-      blend(sourceImg, 0, mouseY - 15, this.width, 30, 0, mouseY - 15, sourceImg.width, 30, DODGE );
+    if (fft != null && mouseX < 1024 && mouseY < this.height) {
+      int chH = height / NUM_CHANNELS;
+      int chIndex = (int)map(mouseY, 0, height, 0, NUM_CHANNELS - 1);
+      blend(sourceImg, 0, mouseY - chH/2, this.width, chH, 0, mouseY - chH/2, sourceImg.width, chH, DODGE );
+      fill(txtColor);
+      textSize(32);
+      textAlign(RIGHT, CENTER);
+      text(channelInfo.get(chIndex).instrumentName, 0, mouseY - chH/2, 1024, chH);
+      
       switch (pixMode) {
       case RED:
         fill(255, 0, 0);
@@ -117,6 +122,9 @@ class Pixelah extends Synestrument {
     imgButton.display();
 
     playFFT();
+    
+    if (mousePressed)
+      onBendCommand(mouseX);
   }
   
   void runFFT() {
@@ -183,6 +191,7 @@ class Pixelah extends Synestrument {
   }
   
   void onMouseMoved() {   
+    onBendCommand(mouseX);
   }
   
   void onLeftMousePressed() {
@@ -239,5 +248,6 @@ class Pixelah extends Synestrument {
   }
 
   void onLeftMouseDragged() {
+    band = (int)map(mouseX, 0, width, 0, fft.specSize()-1);
   }  
 }

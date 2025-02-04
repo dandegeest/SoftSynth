@@ -144,7 +144,7 @@ void setup() {
     channelInfo.add(ci);
   }
   
-  //fullScreen();
+  fullScreen();
   
   gridX = width / ss;
   gridY = synestrumentHeight / ss;
@@ -274,9 +274,11 @@ void drawVis1() {
   //}
   
   if (bendEnabled) {
-    float f = map(knock, 8192-500, 8192+500, 0, ss*2);
+    float f = map(knock, 0, 1023, 0, ss);
     int n = synestrument.getNote(currY);
-    addNote(new Note(synth, currS * ss, currY, 0, n, 0, (int)f));
+    Note note = new Note(synth, currS * ss, currY, 0, n, 0, (int)f);
+    note.noteColor = color(200, 200);
+    addNote(note);
   }
 }
 
@@ -669,11 +671,13 @@ void serialEvent(Serial port) {
     values[0] = Long.toString(System.currentTimeMillis());
     values[1] = inString;
     // Process the command
-    String[] command = inString.split(":");
+    String[] command = "BEND:IT".split(":");
+    command[1] = trim(inString);
+    
     switch(command[0]) {
-      case "KNOCK":
+      case "BEND":
         //println(inString);
-        onKnockCommand(float(command[1]));
+        onBendCommand(float(command[1]));
         break;
       case "EXTCMD":
         println(inString);
@@ -685,18 +689,20 @@ void serialEvent(Serial port) {
   }
 }
 
-void onKnockCommand(float k) {
+void onBendCommand(float k) {
   knock = k;
+  float bend = 8192;
   if (synth != null && synestrument != null) {
-    if (bendEnabled) knock = 8192 + random(-1, 1)*k;
+    if (bendEnabled) bend = 8192 + random(-1, 1)*map(k, 0, 1023, 0, 8192);
     else
-      knock = 8192;
+      bend = 8192;
     //println("BEND:", synestrument.getChannel(), knock);
     if (pitchBendChannel != synestrument.getChannel())
       synth.getChannels()[pitchBendChannel].setPitchBend(8192);
 
     pitchBendChannel = synestrument.getChannel();
-    synth.getChannels()[pitchBendChannel].setPitchBend(floor(knock));
+    println("BENDING", pitchBendChannel, knock);
+    synth.getChannels()[pitchBendChannel].setPitchBend(floor(bend));
   }
 }
 
