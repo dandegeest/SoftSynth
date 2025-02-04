@@ -13,6 +13,7 @@ A software synthesizer framework for **SYNES**thetic ins**TR**ument exploration 
 - Beztar - 16 channel strummable synestrument, plays natural notes, per channel patch
 - FeckCOF - Circle of Fifths synestrument, play chords or single notes on the COF wheel, per channel patch
 - Bawler - Generative bouncy bawl drones, notes, and beats based on Keyano
+- Pixelah - Generates a FFT from a row of pixels in the loaded image and map to notes
 
 # User Guide
 - After dowloading or cloning open the [SoftSynth sketch](SoftSynth.pde) then click "Play"
