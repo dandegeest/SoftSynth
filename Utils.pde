@@ -187,3 +187,14 @@ int lerpColor(int colorStart, int colorEnd, float amount) {
   float lerpedB = lerp(blue(colorStart), blue(colorEnd), amount);  
   return color(lerpedR, lerpedG, lerpedB);
 }
+
+String getMidiNoteName(int midiNumber) {
+  if (midiNumber < 24 || midiNumber > 84) return "Out of Range";
+
+  String[] noteNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+  
+  int octave = (midiNumber / 12) - 1;  // MIDI octaves start at -1 for C-1
+  int noteIndex = midiNumber % 12;  // Get position in noteNames array
+  
+  return noteNames[noteIndex] + octave;  // Combine note name with octave number
+}

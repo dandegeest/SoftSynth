@@ -69,9 +69,10 @@ int seqHColor = activePalette[10];
 int seqCColor = activePalette[11];
 int bgColor = activePalette[0];
 int txtColor = activePalette[15];
-int chColor = activePalette[9];
-int nnColor = activePalette[6];
+int chColor = activePalette[13];
+int nnColor = activePalette[12];
 int nn1Color = activePalette[8];
+int cNoteColor = activePalette[14];
 int white = #FFFFFF;//activePalette[10];
 int black = #000000; //activePalette[11];
 
@@ -98,7 +99,7 @@ String insMessage;
 int insName = 255;
 
 Synestrument synestrument;
-int currSyn = 4;
+int currSyn = 0;
 
 int currS = 0;
 int currY = 0;
@@ -144,7 +145,7 @@ void setup() {
     channelInfo.add(ci);
   }
   
-  fullScreen();
+  //fullScreen();
   
   gridX = width / ss;
   gridY = synestrumentHeight / ss;
@@ -677,7 +678,7 @@ void serialEvent(Serial port) {
     switch(command[0]) {
       case "BEND":
         //println(inString);
-        onBendCommand(float(command[1]));
+        onBendCommand(float(command[1]) * 4);
         break;
       case "EXTCMD":
         println(inString);

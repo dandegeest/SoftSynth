@@ -49,7 +49,7 @@ class Keyano extends Synestrument {
         rect(mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
         fill(txtColor);
         textSize(14);
-        text(""+nn, mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
+        text(getMidiNoteName(nn), mouseX - (mouseX % (width/division)), mouseY - (mouseY % (height/NUM_CHANNELS)), width/division, height/NUM_CHANNELS);
         popStyle();
       }
     }
@@ -74,6 +74,10 @@ class Keyano extends Synestrument {
               fill(white, 210);
             else
               fill(black,naturalOnly ? 0 : 210);
+            // Highlight C notes
+            if (n % 12 == 0)
+              fill(cNoteColor);
+
             rect(x, y, width/NUM_NOTES, height/NUM_CHANNELS);
           }
         popStyle();    

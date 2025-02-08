@@ -15,10 +15,12 @@ enum PlayMode {
 
 class Pixelah extends Synestrument {
   PImage sourceImg;
+  int sourceX = 0;
   int bandSkip = 0;
   int imgIndex = 0;
   PixelMode pixMode = PixelMode.GREEN;
   PlayMode playMode = PlayMode.FORWARD;
+  int btnSizeW = 100;
   Button red;
   Button green;
   Button blue;
@@ -35,17 +37,20 @@ class Pixelah extends Synestrument {
   Pixelah(float x, float y, int w, int h) {
     super(x, y, w, h);
     
-    red = new Button(1024, 0, width - 1024, 100);
+    sourceX = (width - 1024)/2;
+    btnSizeW = width - (sourceX + 1024);
+    
+    red = new Button(width - btnSizeW, 0, btnSizeW, 100);
     red.btnColor = color(255, 0, 0, 200);
-    green = new Button(1024, 100, width - 1024, 100);
+    green = new Button(width - btnSizeW, 100, btnSizeW, 100);
     green.btnColor = color(0, 255, 0);
-    blue = new Button(1024, 200, width - 1024, 100);
+    blue = new Button(width - btnSizeW, 200, btnSizeW, 100);
     blue.btnColor = color(0, 0, 255);
-    bright = new Button(1024, 300, width - 1024, 100);
+    bright = new Button(width - btnSizeW, 300, btnSizeW, 100);
     bright.btnColor = color(230);
-    playModeBtn = new Button(1024, synestrumentHeight-200, width - 1024, 100);
+    playModeBtn = new Button(width - btnSizeW, synestrumentHeight-200, btnSizeW, 100);
     playModeBtn.btnColor = activePalette[10];
-    imgButton = new Button(1024, synestrumentHeight-100, width - 1024, 100);
+    imgButton = new Button(width - btnSizeW, synestrumentHeight-100, btnSizeW, 100);
 
     cycleImg();
     
@@ -81,16 +86,27 @@ class Pixelah extends Synestrument {
       runFFT();
 
     pushStyle();
-    image(sourceImg, 0, 0);
+    noFill();
+    stroke(activePalette[15], 220);
+    strokeWeight(0);
+    for (int i = 0; i < sourceX; i+=5) {
+      for (int j = 0; j < height; j+=5) {
+        rect(i, j, 5, 5);
+      }
+    }
+    popStyle();
 
-    if (fft != null && mouseX < 1024 && mouseY < this.height) {
+    pushStyle();
+    image(sourceImg, sourceX, 0);
+
+    if (fft != null && mouseX >= sourceX && mouseX < sourceX + 1024 && mouseY < this.height) {
       int chH = height / NUM_CHANNELS;
       int chIndex = (int)map(mouseY, 0, height, 0, NUM_CHANNELS - 1);
-      blend(sourceImg, 0, mouseY - chH/2, this.width, chH, 0, mouseY - chH/2, sourceImg.width, chH, DODGE );
+      blend(sourceImg, 0, mouseY - chH/2, this.width, chH, sourceX, mouseY - chH/2, sourceImg.width, chH, DODGE );
       fill(txtColor);
       textSize(32);
       textAlign(RIGHT, CENTER);
-      text(channelInfo.get(chIndex).instrumentName, 0, mouseY - chH/2, 1024, chH);
+      text(channelInfo.get(chIndex).instrumentName, sourceX, mouseY - chH/2, 1024, chH);
       
       switch (pixMode) {
       case RED:
@@ -191,7 +207,7 @@ class Pixelah extends Synestrument {
   }
   
   void onMouseMoved() {   
-    onBendCommand(mouseX);
+    //onBendCommand(mouseX);
   }
   
   void onLeftMousePressed() {
@@ -234,7 +250,7 @@ class Pixelah extends Synestrument {
       return;
     }
 
-    if (mouseX < 1024) {
+    if (mouseX >= sourceX && mouseX < sourceX + 1024) {
       bandSkip = (int)map(millis() - bandSkip, 0, 5000, 1, fft.specSize() - 1);
       switch (playMode) {
         case FORWARD:  
